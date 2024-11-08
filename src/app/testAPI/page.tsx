@@ -23,6 +23,8 @@ const page = () => {
     apiKey: getAnthropicKey(),
     dangerouslyAllowBrowser: true,
   });
+
+  // TODO: ВЫТАЩИТЬ НА СЕРВЕР
   async function zapros(text: string) {
     const msg = await anthropic.messages.create({
       model: "claude-3-5-sonnet-20241022",

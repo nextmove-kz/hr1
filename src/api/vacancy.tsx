@@ -9,3 +9,15 @@ export const createVacancy = async (vacancy: any) => {
     return null;
   }
 };
+
+export const getVacancies = async (vacancy: string) => {
+  try {
+    const vacancies = await clientPocketBase
+      .collection("vacancy")
+      .getFullList({ filter: `{"title":"${vacancy}"}` });
+    return vacancies;
+  } catch (error) {
+    console.log("error:", error);
+    return null;
+  }
+};

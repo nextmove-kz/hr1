@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 const DashboardPage = ({ params }: { params: { id: string } }) => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const inputValue = searchParams.get("inputValue") || "";
   const id = params.id;
   console.log("id", id);
 

@@ -2,26 +2,21 @@
 
 import { extractTextFromPDF } from "@/utils/extractText";
 import { getPDFDocument } from "@/utils/getPdfDocument";
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { DialogContent, DialogDescription, DialogHeader } from "./ui/dialog";
+import { Input } from "./ui/input";
+import { ScrollArea } from "./ui/scroll-area";
+import { Label } from "./ui/label";
+import JSZip from "jszip";
 
 interface ParsedPDF {
   fileName: string;
   text: string;
 }
 
-let JSZip: any = null;
-
 export const FileUploader = () => {
   const [parsedFiles, setParsedFiles] = useState<ParsedPDF[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-    import("jszip").then((module) => {
-      JSZip = module.default;
-    });
-  }, []);
 
   const handleSinglePDF = async (file: File): Promise<ParsedPDF> => {
     const pdfDoc = await getPDFDocument(file);
@@ -91,51 +86,49 @@ export const FileUploader = () => {
     }
   };
 
-  if (!isClient) {
-    return null;
-  }
-
   return (
-    <div className="p-4">
-      <div className="mb-4">
-        <input
+    <DialogContent>
+      <DialogHeader>Загрузите резюме</DialogHeader>
+      <DialogDescription>
+        Поддерживаемые форматы: .pdf для единичной загрузки, .zip для массовой
+      </DialogDescription>
+      <div className="grid w-full max-w-sm items-center gap-1.5">
+        <Label>Выберите файл</Label>
+        <Input
           type="file"
           accept=".pdf,.zip"
           onChange={handleFileChange}
-          className="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-600 file:text-white
-            hover:file:bg-blue-700"
+          placeholder="Выберите файл"
         />
       </div>
 
-      {loading && (
-        <div className="text-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Processing files...</p>
-        </div>
-      )}
+      <ScrollArea className="max-h-[60vh]">
+        {loading && (
+          <div className="text-center py-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-2 text-gray-600">Processing files...</p>
+          </div>
+        )}
 
-      {parsedFiles.length > 0 && (
-        <div className="mt-4">
-          <h2 className="text-xl font-semibold mb-4">
-            Processed {parsedFiles.length} file
-            {parsedFiles.length !== 1 ? "s" : ""}
-          </h2>
-          {parsedFiles.map((file, index) => (
-            <div key={index} className="mb-6 p-4 border rounded-lg shadow-sm">
-              <h3 className="font-semibold mb-2 text-blue-600">
-                {file.fileName}
-              </h3>
-              <div className="whitespace-pre-wrap bg-gray-50 p-4 rounded">
-                {file.text}
+        {parsedFiles.length > 0 && (
+          <div className="mt-4">
+            <h2 className="text-xl font-semibold mb-4">
+              Processed {parsedFiles.length} file
+              {parsedFiles.length !== 1 ? "s" : ""}
+            </h2>
+            {parsedFiles.map((file, index) => (
+              <div key={index} className="mb-6 p-4 border rounded-lg shadow-sm">
+                <h3 className="font-semibold mb-2 text-blue-600">
+                  {file.fileName}
+                </h3>
+                <div className="bg-gray-50 p-4 rounded truncate">
+                  {file.text}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+            ))}
+          </div>
+        )}
+      </ScrollArea>
+    </DialogContent>
   );
 };

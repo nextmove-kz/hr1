@@ -1,4 +1,4 @@
-import { UsersRecord, UsersResponse } from "@/api/api_types";
+import { UsersResponse } from "@/api/api_types";
 import { pocketbase } from "@/api/pocketbase";
 import {
   Card,

@@ -1,17 +1,27 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const Search = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [inputValue, setInputValue] = useState("");
-
+  const pathname = usePathname();
   async function inputResult(event: React.FormEvent) {
     event.preventDefault();
-    router.push(`/dashboard/search/${id}?inputValue=${inputValue}`);
+    // ТОЛЬКО ТРОГАЕМ КВЕРИ ПАРАМЫ
+    router.push(pathname + "?" + createQueryString("inputValue", inputValue));
   }
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(name, value);
+
+      return params.toString();
+    },
+    [searchParams]
+  );
 
   return (
     <div className="w-full">

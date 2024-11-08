@@ -19,6 +19,7 @@ const page = () => {
 
   const [inputValue, setInputValue] = useState("");
   const anthropic = new Anthropic({
+    // НЕ КОММИТИТЬ АПИ КЛЮЧ НИКОГДА НИКОГДА НИКОГДА НИКОГДА НИКОГДА
     apiKey: getAnthropicKey(),
     dangerouslyAllowBrowser: true,
   });

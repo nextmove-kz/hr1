@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-<<<<<<< HEAD
 import { Toaster } from "@/components/ui/toaster";
-=======
->>>>>>> 5287325 (search small changes)
 import Sidebar from "@/components/Sidebar";
 
 const geistSans = localFont({
@@ -34,24 +31,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-<<<<<<< HEAD
-<<<<<<< HEAD
-        {children}
-=======
->>>>>>> 5287325 (search small changes)
-=======
->>>>>>> 5287325 (search small changes)
         <div className="flex h-screen">
           <Sidebar />
           <main className="w-full h-full">{children}</main>
         </div>
-<<<<<<< HEAD
-<<<<<<< HEAD
+
         <Toaster />
-=======
->>>>>>> 5287325 (search small changes)
-=======
->>>>>>> 5287325 (search small changes)
       </body>
     </html>
   );

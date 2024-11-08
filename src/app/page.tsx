@@ -1,3 +1,5 @@
+import { UsersRecord, UsersResponse } from "@/api/api_types";
+import { pocketbase } from "@/api/pocketbase";
 import {
   Card,
   CardContent,
@@ -8,7 +10,9 @@ import {
 import { ChevronDoubleRightIcon } from "@heroicons/react/16/solid";
 import Image from "next/image";
 
-export default function Home() {
+export default async function Home() {
+  const users = await pocketbase().collection("users").getList();
+
   return (
     <div className="h-screen flex flex-col items-center justify-center">
       <Card className="w-[360px]">
@@ -35,6 +39,8 @@ export default function Home() {
           />
         </CardContent>
       </Card>
+      {users &&
+        users.items.map((user: UsersResponse) => <p>{user.username}</p>)}
     </div>
   );
 }

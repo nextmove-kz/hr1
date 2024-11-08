@@ -14,8 +14,7 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
   const inputValue = searchParams.get("inputValue") || "";
   const id = params.id;
-
-  router.push(`/dashboard/${id}?inputValue=${inputValue}`);
+  console.log("id", id);
 
   const vacancies = [
     { id: "1", name: "Vacancy 1", active: true },

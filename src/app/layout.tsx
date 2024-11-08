@@ -31,12 +31,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+<<<<<<< HEAD
         {children}
+=======
+>>>>>>> 5287325 (search small changes)
         <div className="flex h-screen">
           <Sidebar />
           <main className="w-full h-full">{children}</main>
         </div>
+<<<<<<< HEAD
         <Toaster />
+=======
+>>>>>>> 5287325 (search small changes)
       </body>
     </html>
   );

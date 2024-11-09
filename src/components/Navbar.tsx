@@ -6,6 +6,7 @@ import SignIn from "./sign-in";
 import { LogOutButton } from "./logOutButton";
 import { Dialog, DialogTrigger } from "./ui/dialog";
 import { FileUploader } from "./FileUploader";
+import DrawerComponent from "./Drawer";
 
 export default async function Navbar() {
   const user = await getUser();
@@ -14,7 +15,10 @@ export default async function Navbar() {
 
   return (
     <nav className="flex justify-between items-center p-4 border-b-[1px] border-slate-200">
-      <h1 className="text-2xl font-bold">HR1</h1>
+      <div className="flex gap-4">
+        <h1 className="text-3xl font-bold font-mono">HR1</h1>
+        <DrawerComponent />
+      </div>
       <div className="flex gap-4 items-center">
         <Dialog>
           <DialogTrigger asChild>

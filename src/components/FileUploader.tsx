@@ -16,15 +16,8 @@ import { Label } from "./ui/label";
 import JSZip from "jszip";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "./ui/button";
-import { pocketbase } from "@/api/pocketbase";
 import clientPocketBase from "@/api/client_pb";
-import {
-  ResumeRecord,
-  ResumeResponse,
-  ResumeStatusOptions,
-  VacancyRecord,
-  VacancyResponse,
-} from "@/api/api_types";
+import { ResumeRecord, VacancyResponse } from "@/api/api_types";
 import { zapros } from "@/api/ai/anthropic";
 import { useToast } from "@/hooks/use-toast";
 import { matchResumeToVacancy } from "@/utils/matchResume";
@@ -113,10 +106,24 @@ export const FileUploader = () => {
         const filtered = results.filter((file) =>
           matchResumeToVacancy(file.text, vacancy)
         );
-        setParsedFiles(filtered);
+        if (filtered.length === 0) {
+          toast({
+            variant: "destructive",
+            title: "Ни одно резюме не подошло к вакансии",
+          });
+        } else {
+          setParsedFiles(filtered);
+        }
       } else if (files[0].name.toLowerCase().endsWith(".pdf")) {
         const result = await handleSinglePDF(files[0]);
-        setParsedFiles([result]);
+        if (matchResumeToVacancy(result.text, vacancy)) {
+          setParsedFiles([result]);
+        } else {
+          toast({
+            variant: "destructive",
+            title: "Резюме не подходит к вакансии",
+          });
+        }
       } else {
         throw new Error("Пожалуйста, загрузите PDF или ZIP файл");
       }

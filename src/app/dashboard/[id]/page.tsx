@@ -99,7 +99,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
             <CloseVacancy item={vacancy as VacancyResponse} />
             <VacancyModal />
             <select
-              className="bg-transparent border px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+              className="bg-transparent border px-1 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
               value={statusFilter}
               onChange={handleChange}
             >

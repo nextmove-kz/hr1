@@ -5,19 +5,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Search from "./InputValue";
 import { useRouter, useSearchParams } from "next/navigation";
+import VacancyLink from "./VacancyLink";
+import { PlusCircleIcon } from "@heroicons/react/16/solid";
 
 const Sidebar: React.FC = () => {
   const searchParams = useSearchParams();
   const inputValue = searchParams.get("inputValue") || "";
-  const [id, setId] = useState<string>("");
-  const [isOpen, setIsOpen] = useState(true);
-
-  const [selected, setSelected] = useState<number>();
-  const router = useRouter();
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
 
   const vacancies = [
     { id: "1", name: "Ivan++ dev 1", active: true },
@@ -25,31 +18,21 @@ const Sidebar: React.FC = () => {
     { id: "3", name: "Ivan++ dev 3", active: false },
   ];
 
-  const handleChange = (index: number) => {
-    setSelected(index);
-  };
   return (
-    <div className="flex flex-col w-64 border-r p-4 space-y-4">
+    <div className="flex flex-col w-[270px] border-r p-4 space-y-4 h-[92dvh]">
       <Search />
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         {vacancies
           .filter((vacancy) =>
             vacancy.name.toLowerCase().includes(inputValue.toLowerCase())
           )
-          .map((vacancy, index) => (
-            <Link key={index} href={`/dashboard/${vacancy.id}`}>
-              <Button
-                key={index}
-                variant={selected === index ? "default" : "secondary"}
-                className="w-full justify-start"
-                onClick={() => handleChange(index)}
-              >
-                {vacancy.name}
-              </Button>
-            </Link>
+          .map((vacancy) => (
+            <VacancyLink key={vacancy.id} id={vacancy.id} name={vacancy.name} />
           ))}
       </div>
-      <Button className="mt-auto w-full">Add Vacancy</Button>
+      <Button className="mt-auto w-full">
+        <PlusCircleIcon /> Вакансия
+      </Button>
     </div>
   );
 };

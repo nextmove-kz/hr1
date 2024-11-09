@@ -7,29 +7,18 @@ import Search from "./InputValue";
 import { useRouter, useSearchParams } from "next/navigation";
 import VacancyLink from "./VacancyLink";
 import { PlusCircleIcon } from "@heroicons/react/16/solid";
+import VacancyList from "./VacancyList";
+import { Separator } from "./ui/separator";
 
 const Sidebar: React.FC = () => {
   const searchParams = useSearchParams();
   const inputValue = searchParams.get("inputValue") || "";
 
-  // const vacancies = [
-  //   { id: "1", name: "Ivan++ dev 1", active: true },
-  //   { id: "2", name: "Ivan++ dev 2", active: false },
-  //   { id: "3", name: "Ivan++ dev 3", active: false },
-  // ];
-
   return (
-    <div className="flex flex-col w-[270px] border-r p-4 space-y-4 h-[92dvh]">
+    <div className="flex flex-col min-w-[270px] border-r p-4 space-y-4 h-[92dvh]">
       <Search />
-      <div className="flex flex-col gap-2">
-        {vacancies
-          .filter((vacancy) =>
-            vacancy.name.toLowerCase().includes(inputValue.toLowerCase())
-          )
-          .map((vacancy) => (
-            <VacancyLink key={vacancy.id} id={vacancy.id} name={vacancy.name} />
-          ))}
-      </div>
+      <VacancyList inputValue={inputValue} />
+      <Separator />
       <Button className="mt-auto w-full">
         <PlusCircleIcon /> Вакансия
       </Button>

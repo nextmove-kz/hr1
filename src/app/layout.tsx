@@ -33,10 +33,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen`}
       >
         <Navbar />
-        <div className="flex min-h-fit">
-          <Sidebar />
-          <main className="w-full h-full">{children}</main>
-        </div>
+        <div className="flex min-h-fit">{children}</div>
 
         <Toaster />
       </body>

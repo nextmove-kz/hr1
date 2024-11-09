@@ -1,4 +1,5 @@
 import clientPocketBase from "./client_pb";
+import { pocketbase } from "./pocketbase";
 
 export const createVacancy = async (vacancy: any) => {
   try {
@@ -20,4 +21,9 @@ export const viewVacancy = async () => {
     console.log("error:", error);
     return null;
   }
+};
+
+export const getVacancyList = async () => {
+  "use server";
+  return await pocketbase().collection("vacancy").getFullList();
 };

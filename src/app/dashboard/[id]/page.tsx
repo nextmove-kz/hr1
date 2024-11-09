@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { getResume } from "@/api/resume";
+import { accept, getResume, reject } from "@/api/resume";
 
 import { useEffect, useState } from "react";
 import { ResumeResponse } from "@/api/api_types";
@@ -35,8 +35,9 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     const filterData = () => {
-      if (!statusFilter) {
-        setFilteredResumes(resumes);
+      if (statusFilter === "") {
+        const filtered = resumes.filter((resume) => !resume.status);
+        setFilteredResumes(filtered);
       } else {
         const filtered = resumes.filter(
           (resume) => resume.status === statusFilter
@@ -64,7 +65,7 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="">Все</option>
+              <option value="">Без статуса</option>
               <option value="accept">Принятые</option>
               <option value="reject">Отклоненные</option>
             </select>
@@ -132,7 +133,7 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
                     </div>
                     {!resume.status && (
                       <div className="flex items-center gap-2 border border-gray-200 rounded-full p-1">
-                        <button>
+                        <button onClick={() => accept(resume.id)}>
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -148,7 +149,7 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
                             />
                           </svg>
                         </button>
-                        <button>
+                        <button onClick={() => reject(resume.id)}>
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"

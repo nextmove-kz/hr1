@@ -42,7 +42,8 @@ export enum ResumeStatusOptions {
 }
 export type ResumeRecord = {
 	cons?: string
-	full_name?: string
+	fullName?: string
+	jobName?: string
 	pros?: string
 	rating?: number
 	resume?: string
@@ -75,8 +76,6 @@ export type VacancyRecord = {
 	description?: string
 	employment_type?: VacancyEmploymentTypeOptions
 	experience?: VacancyExperienceOptions
-	maxSalary?: number
-	minSalary?: number
 	resume?: RecordIdString[]
 	title: string
 }

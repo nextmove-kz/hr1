@@ -55,24 +55,15 @@ const page = () => {
   const [inputValue, setInputValue] = useState("");
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
-      <div className="flex w-full max-w-sm space-x-2">
-        <Input
-          type="text"
-          value={inputValue}
-          placeholder="text"
-          onChange={(event) => {
-            setInputValue(event.target.value);
-          }}
-        />
-        <Button
-          onClick={() => {
-            zapros(vacancy, resumeExample);
-          }}
-        >
-          GO
-        </Button>
-      </div>
+    <div className="w-screen h-[80vh] flex justify-center items-center">
+      <Button
+        className="text-lg font-bold"
+        onClick={() => {
+          zapros(vacancy, resumeExample);
+        }}
+      >
+        GO
+      </Button>
     </div>
   );
 };

@@ -4,14 +4,14 @@ import VacancyLink from "./VacancyLink";
 import clientPocketBase from "@/api/client_pb";
 import { useEffect, useState } from "react";
 
-const VacancyList = ({ inputValue }: { inputValue: string }) => {
+const VacancyCloseList = () => {
   const [vacancies, setVacancies] = useState<Array<VacancyResponse>>([]);
 
   useEffect(() => {
     const fetchVacancies = async () => {
       const data = await clientPocketBase.collection("vacancy").getFullList();
       const final = data.filter(function (el) {
-        if (el.archive != true) {
+        if (el.archive == true) {
           return el;
         }
       });
@@ -23,9 +23,7 @@ const VacancyList = ({ inputValue }: { inputValue: string }) => {
   return (
     <div className="flex flex-col gap-2 w-full">
       {vacancies
-        .filter((vacancy: VacancyResponse) =>
-          vacancy.title.toLowerCase().includes(inputValue.toLowerCase())
-        )
+        .filter((vacancy: VacancyResponse) => vacancy.title)
         .map((vacancy: VacancyResponse) => (
           <VacancyLink key={vacancy.id} id={vacancy.id} name={vacancy.title} />
         ))}
@@ -33,4 +31,4 @@ const VacancyList = ({ inputValue }: { inputValue: string }) => {
   );
 };
 
-export default VacancyList;
+export default VacancyCloseList;

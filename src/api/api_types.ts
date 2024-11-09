@@ -71,6 +71,7 @@ export enum VacancyExperienceOptions {
 	"6+" = "6+",
 }
 export type VacancyRecord = {
+	archive?: boolean
 	city?: string
 	description?: string
 	employment_type?: VacancyEmploymentTypeOptions

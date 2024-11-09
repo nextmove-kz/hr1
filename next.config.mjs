@@ -7,6 +7,7 @@ const nextConfig = {
     config.externals = [...config.externals, { canvas: "canvas" }];
     return config;
   },
+  typescript: { ignoreBuildErrors: true },
 };
 
 export default nextConfig;

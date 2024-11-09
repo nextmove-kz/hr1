@@ -13,6 +13,7 @@ export const createVacancy = async (vacancy: any) => {
 
 export const viewVacancy = async () => {
   try {
+    console.log(clientPocketBase.baseUrl);
     const data = await clientPocketBase.collection("vacancy").getFullList();
 
     return data;

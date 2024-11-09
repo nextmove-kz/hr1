@@ -37,7 +37,6 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
     const fetchData = async () => {
       if (!id) return;
       try {
-        const response = await vacancyById(params.id);
         setVacancy(await vacancyById(params.id));
         const data = await getResume(id);
         if (!data) return;
@@ -108,7 +107,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
           <div className="flex gap-2">
             <VacancyModal />
             <select
-              className="bg-transparent border px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+              className="bg-transparent border px-1 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
               value={statusFilter}
               onChange={handleChange}
             >
@@ -190,7 +189,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                         <svg className="w-full h-full " viewBox="0 0 100 100">
                           <circle
                             className="text-gray-200 stroke-current"
-                            stroke-width="10"
+                            strokeWidth="10"
                             cx="50"
                             cy="50"
                             r="40"
@@ -200,8 +199,8 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                             className={`${getRatingColor(
                               resume.rating
                             )} progress-ring__circle stroke-current`}
-                            stroke-width="10"
-                            stroke-linecap="round"
+                            strokeWidth="10"
+                            strokeLinecap="round"
                             cx="50"
                             cy="50"
                             r="40"

@@ -61,8 +61,21 @@ export default function DrawerComponent() {
     <div className="xl:hidden 2xl:hidden lg:hidden md:hidden">
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
-          <Button variant="outline" className="w-auto">
-            Вакансии
+          <Button variant="ghost" className="w-auto p-1">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              className="size-6"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+              />
+            </svg>
           </Button>
         </DrawerTrigger>
         <DrawerContent className="w-full">

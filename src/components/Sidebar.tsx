@@ -3,8 +3,14 @@ import Search from "./InputValue";
 import { useSearchParams } from "next/navigation";
 import VacancyList from "./VacancyList";
 import { Separator } from "./ui/separator";
-
 import ButtonCreate from "./dialogCreate";
+import VacancyCloseList from "./VacancyCloseList";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 const Sidebar: React.FC = () => {
   const searchParams = useSearchParams();
   const inputValue = searchParams.get("inputValue") || "";
@@ -20,6 +26,15 @@ const Sidebar: React.FC = () => {
         </Button>
       </DialogTrigger> */}
       <ButtonCreate />
+
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="item-1">
+          <AccordionTrigger>Архивные вакансии</AccordionTrigger>
+          <AccordionContent>
+            <VacancyCloseList />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 };

@@ -20,7 +20,20 @@ export const viewVacancy = async () => {
   }
 };
 
-export const getVacancyList = async () => {
-  "use server";
-  return await pocketbase().collection("vacancy").getFullList();
+export const archiveById = async (id: string) => {
+  const data = {
+    archive: true,
+  };
+  return await clientPocketBase.collection("vacancy").update(id, data);
+};
+
+export const disArchiveById = async (id: string) => {
+  const data = {
+    archive: false,
+  };
+  return await clientPocketBase.collection("vacancy").update(id, data);
+};
+
+export const vacancyById = async (id: string) => {
+  return await clientPocketBase.collection("vacancy").getOne(id);
 };

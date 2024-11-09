@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogTrigger } from "../components/ui/dialog";
 import { createVacancy } from "@/api/vacancy";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { Textarea } from "@/components/ui/textarea";
 
 const ButtonCreate = () => {
   const { toast } = useToast();
@@ -79,7 +80,8 @@ const ButtonCreate = () => {
                   setTitle(event.target.value);
                 }}
               />
-              <Input
+
+              <Textarea
                 value={description}
                 id="Description"
                 placeholder="Описание"
@@ -87,6 +89,7 @@ const ButtonCreate = () => {
                   setDescription(event.target.value);
                 }}
               />
+
               <Input
                 value={city}
                 id="City"

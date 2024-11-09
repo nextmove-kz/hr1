@@ -6,21 +6,27 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { accept, getResume, reject } from "@/api/resume";
-
 import { useEffect, useState } from "react";
-import { ResumeResponse } from "@/api/api_types";
+import {
+  ResumeResponse,
+  VacancyRecord,
+  VacancyResponse,
+} from "@/api/api_types";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import CloseVacancy from "@/components/closeVacancy";
+import { vacancyById } from "@/api/vacancy";
 import VacancyModal from "@/components/VacancyModal";
 import { useRouter } from "next/navigation";
 
-const DashboardPage = ({ params }: { params: { id: string } }) => {
+export default function DashboardPage({ params }: { params: { id: string } }) {
   const id = params.id;
   const router = useRouter();
   const [resumes, setResumes] = useState<ResumeResponse[]>([]);
   const [filteredResumes, setFilteredResumes] = useState<ResumeResponse[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("");
+  const [vacancy, setVacancy] = useState<VacancyRecord>();
   const [reloadResumes, setReloadResumes] = useState<boolean>(false);
 
   useEffect(() => {
@@ -29,6 +35,8 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
     const fetchData = async () => {
       if (!id) return;
       try {
+        const response = await vacancyById(params.id);
+        setVacancy(await vacancyById(params.id));
         const data = await getResume(id);
         if (!data) return;
         setResumes(data);
@@ -80,12 +88,16 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
     router.refresh();
   };
 
+  if (!vacancy) return;
+
   return (
     <div className="">
       <div className="flex-1 p-6">
         <div className="flex text-xl font-semibold mb-4 justify-between">
-          <h1>Резюме ({filteredResumes.length} подходящих)</h1>
+          <h1>{vacancy && vacancy.title}</h1>
+
           <div className="flex gap-2">
+            <CloseVacancy item={vacancy as VacancyResponse} />
             <VacancyModal />
             <select
               className="bg-transparent border px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
@@ -240,6 +252,4 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
       </div>
     </div>
   );
-};
-
-export default DashboardPage;
+}

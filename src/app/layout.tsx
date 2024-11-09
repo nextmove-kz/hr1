@@ -37,6 +37,7 @@ export default function RootLayout({
           <Sidebar />
           <main className="w-full h-full">{children}</main>
         </div>
+
         <Toaster />
       </body>
     </html>

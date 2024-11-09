@@ -10,12 +10,12 @@ export const createVacancy = async (vacancy: any) => {
   }
 };
 
-export const viewVacancy = async () => {
+export const getVacancies = async (vacancy: string) => {
   try {
-    const data = await clientPocketBase.collection("vacancy").getFullList();
-    console.log(data);
-
-    return data;
+    const vacancies = await clientPocketBase
+      .collection("vacancy")
+      .getFullList({ filter: `{"title":"${vacancy}"}` });
+    return vacancies;
   } catch (error) {
     console.log("error:", error);
     return null;

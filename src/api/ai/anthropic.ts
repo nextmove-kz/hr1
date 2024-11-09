@@ -2,10 +2,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { VacancyRecord } from "../api_types";
 
-export const getAnthropicKey = () => {
-  return process.env.ANTHROPIC_KEY;
-};
-
 export type AISummary = {
   fullName: string;
   resumeJobName: string;
@@ -15,13 +11,12 @@ export type AISummary = {
   summary: string;
 };
 
-const anthropic = new Anthropic({
-  // НЕ КОММИТИТЬ АПИ КЛЮЧ НИКОГДА НИКОГДА НИКОГДА НИКОГДА НИКОГДА
-  apiKey: getAnthropicKey(),
-  dangerouslyAllowBrowser: true,
-});
-
 export async function zapros(job_description: string, resume: string) {
+  const anthropic = new Anthropic({
+    // НЕ КОММИТИТЬ АПИ КЛЮЧ НИКОГДА НИКОГДА НИКОГДА НИКОГДА НИКОГДА
+    apiKey: process.env.ANTHROPIC_KEY,
+    dangerouslyAllowBrowser: true,
+  });
   const textMessage = `Вы будете анализировать соответствие резюме кандидата требованиям вакансии. Вам будет предоставлено описание вакансии и одно или несколько резюме. Ваша задача - оценить каждое резюме и предоставить структурированный анализ в формате JSON.
 
     Сначала ознакомьтесь с описанием вакансии:
@@ -81,7 +76,7 @@ export async function zapros(job_description: string, resume: string) {
   const response = msg.content[0] as { text: any };
   const data = JSON.parse(response.text);
   const final = {
-    fullName: data.full_name,
+    fullName: data.fullName,
     resumeJobName: data.resumeJobName,
     resumeScore: data.resumeScore,
     advantages: data.advantages.join("\n"),

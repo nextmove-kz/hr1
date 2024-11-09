@@ -1,22 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-
 const DashboardPage = () => {
   return (
     <div>
-      <div className="flex h-screen justify-center items-center mt-auto text-3xl">
+      <div className="flex mt-16 text-2xl ml-2 items-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          className="size-10"
+          className="size-6"
         >
           <path
             stroke-linecap="round"
@@ -29,6 +21,5 @@ const DashboardPage = () => {
     </div>
   );
 };
-
 
 export default DashboardPage;

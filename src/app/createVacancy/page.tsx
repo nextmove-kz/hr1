@@ -30,8 +30,6 @@ const page = () => {
   const [description, setDescription] = useState("");
   const [city, setCity] = useState("");
   const [experience, setExperience] = useState("");
-  const [minSalary, setMinSalary] = useState<string>("");
-  const [maxSalary, setMaxSalary] = useState<string>("");
 
   const submitData = () => {
     const result = createVacancy(data);
@@ -45,8 +43,6 @@ const page = () => {
     setDescription("");
     setCity("");
     setExperience("");
-    setMinSalary("");
-    setMaxSalary("");
     router.refresh();
   };
 
@@ -55,8 +51,6 @@ const page = () => {
     description: description,
     city: city,
     experience: experience,
-    minSalary: minSalary,
-    maxSalary: maxSalary,
     employment_type: employmentType,
   };
   return (
@@ -96,26 +90,6 @@ const page = () => {
                     setCity(event.target.value);
                   }}
                 />
-                <div className="flex ">
-                  <Input
-                    value={minSalary}
-                    id="minSalary"
-                    placeholder="Минимальная зарплата"
-                    onChange={(event) => {
-                      if (isNaN(+event.target.value)) return;
-                      setMinSalary(event.target.value);
-                    }}
-                  />
-                  <Input
-                    value={maxSalary}
-                    id="maxSalary"
-                    placeholder="Максимальная зарплата"
-                    onChange={(event) => {
-                      if (isNaN(+event.target.value)) return;
-                      setMaxSalary(event.target.value);
-                    }}
-                  />
-                </div>
               </div>
               <div className="flex flex-col space-y-1.5">
                 <DropdownMenu>

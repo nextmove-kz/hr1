@@ -138,7 +138,7 @@ const ButtonCreate = () => {
                   <DropdownMenuItem onClick={() => setExperience("3-6")}>
                     3-6
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setExperience("voluntary")}>
+                  <DropdownMenuItem onClick={() => setExperience("6+")}>
                     6+
                   </DropdownMenuItem>
                 </DropdownMenuContent>

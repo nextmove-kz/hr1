@@ -1,32 +1,47 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const Search = () => {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const router = useRouter();
   const [inputValue, setInputValue] = useState("");
 
-  async function inputResult(event: React.FormEvent) {
-    event.preventDefault();
-    router.push(`/dashboard/search/${id}?inputValue=${inputValue}`);
-  }
+  useEffect(() => {
+    const initialValue = searchParams.get("inputValue") || "";
+    setInputValue(initialValue);
+  }, [searchParams]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = event.target.value;
+    setInputValue(newValue);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (newValue) {
+      params.set("inputValue", newValue);
+    } else {
+      params.delete("inputValue");
+    }
+
+    const newUrl = `${pathname}?${params.toString()}`;
+
+    router.push(newUrl);
+  };
 
   return (
     <div className="w-full">
-      <form
-        className="w-full flex justify-between items-center flex-col gap-7"
-        onSubmit={inputResult}
-      >
+      <div className="w-full flex justify-between items-center flex-col gap-7">
         <Input
           type="search"
           value={inputValue}
-          onChange={(event) => setInputValue(event.target.value)}
-          placeholder="Вакансия..."
+          onChange={handleInputChange}
+          placeholder="Поиск"
           className="bg-slate-100 border-none"
         />
-      </form>
+      </div>
     </div>
   );
 };

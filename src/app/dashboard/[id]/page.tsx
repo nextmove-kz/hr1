@@ -15,7 +15,7 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
   const id = params.id;
   const [resumes, setResumes] = useState<ResumeResponse[]>([]);
   const [filteredResumes, setFilteredResumes] = useState<ResumeResponse[]>([]);
-  const [statusFilter, setStatusFilter] = useState<string>("no_status");
+  const [statusFilter, setStatusFilter] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,7 +34,7 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     const filterData = () => {
-      if (statusFilter === "no_status") {
+      if (!statusFilter) {
         setFilteredResumes(resumes);
       } else {
         const filtered = resumes.filter(
@@ -57,7 +57,7 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="no_status">Все</option>
+              <option value="">Все</option>
               <option value="accept">Принятые</option>
               <option value="reject">Отклоненные</option>
             </select>
@@ -89,7 +89,7 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">Рейтинг: {resume.rating}</span>
-                    {resume.status === "no_status" && (
+                    {!resume.status && (
                       <div className="flex items-center gap-2">
                         <button>
                           <svg

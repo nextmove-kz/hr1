@@ -1,3 +1,4 @@
+import { VacancyRecord } from "./api_types";
 import clientPocketBase from "./client_pb";
 import { pocketbase } from "./pocketbase";
 
@@ -36,4 +37,8 @@ export const disArchiveById = async (id: string) => {
 
 export const vacancyById = async (id: string) => {
   return await clientPocketBase.collection("vacancy").getOne(id);
+};
+
+export const updateVacancy = async (id: string, data: VacancyRecord) => {
+  return await clientPocketBase.collection("vacancy").update(id, data);
 };

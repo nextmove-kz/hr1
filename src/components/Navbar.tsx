@@ -22,7 +22,7 @@ export default async function Navbar() {
       <div className="flex gap-4 items-center">
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline">Добавить резюме</Button>
+            {user && auth && <Button variant="outline">Добавить резюме</Button>}
           </DialogTrigger>
           <FileUploader />
         </Dialog>

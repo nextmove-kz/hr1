@@ -4,6 +4,7 @@ import { extractTextFromPDF } from "@/utils/extractText";
 import { getPDFDocument } from "@/utils/getPdfDocument";
 import { useEffect, useState } from "react";
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -25,6 +26,7 @@ import {
   VacancyResponse,
 } from "@/api/api_types";
 import { zapros } from "@/api/ai/anthropic";
+import { useToast } from "@/hooks/use-toast";
 
 interface ParsedPDF {
   fileName: string;
@@ -33,13 +35,16 @@ interface ParsedPDF {
 }
 
 export const FileUploader = () => {
+  const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
   const vacancyParam = pathname.split("/")[2];
   const vacancyId = vacancyParam ? vacancyParam.split("?")[0] : "";
   const [parsedFiles, setParsedFiles] = useState<ParsedPDF[]>([]);
   const [loading, setLoading] = useState(false);
   const [vacancy, setVacancy] = useState<VacancyResponse>();
   const [processingAI, setProcessingAI] = useState(false);
+  const [proceessingFinished, setProceessingFinished] = useState(false);
 
   useEffect(() => {
     setParsedFiles([]);
@@ -98,6 +103,7 @@ export const FileUploader = () => {
 
     setLoading(true);
     setParsedFiles([]);
+    setProceessingFinished(false);
 
     try {
       if (files[0].name.toLowerCase().endsWith(".zip")) {
@@ -151,8 +157,9 @@ export const FileUploader = () => {
 
     for (const chunk of chunks) {
       try {
-        const aiResponse = await mockAI(chunk);
+        let aiResponse: ResumeRecord[] | ResumeRecord = await mockAI(chunk);
         if (!aiResponse) continue;
+        aiResponse = aiResponse.splice(0, chunk.length);
 
         if (Array.isArray(aiResponse)) {
           for (let i = 0; i < aiResponse.length; i++) {
@@ -180,6 +187,11 @@ export const FileUploader = () => {
         alert("Произошла ошибка при обработке резюме");
       } finally {
         setProcessingAI(false);
+        router.refresh();
+        toast({ title: "Файлы резюме загружены" });
+        setProceessingFinished(true);
+        setParsedFiles([]);
+        setLoading(false);
       }
     }
   };
@@ -256,7 +268,8 @@ export const FileUploader = () => {
         {parsedFiles.length > 0 && (
           <div className="mt-4">
             <h2 className="text-xl font-semibold mb-2">
-              Обработано {parsedFiles.length} {humanizeText(parsedFiles.length)}
+              Обработан{parsedFiles.length > 1 ? "о " : " "}{" "}
+              {parsedFiles.length} {humanizeText(parsedFiles.length)}
             </h2>
             {parsedFiles.map((file, index) => (
               <div key={index} className="">
@@ -267,12 +280,20 @@ export const FileUploader = () => {
           </div>
         )}
       </ScrollArea>
-      <Button
-        disabled={parsedFiles.length === 0 || processingAI}
-        onClick={sendResume}
-      >
-        {processingAI ? "Оцениваем резюме... ✨" : "Загрузить"}
-      </Button>
+      {!proceessingFinished ? (
+        <Button
+          disabled={parsedFiles.length === 0 || processingAI}
+          onClick={sendResume}
+        >
+          {processingAI ? "Оцениваем резюме... ✨" : "Загрузить"}
+        </Button>
+      ) : (
+        <DialogClose asChild>
+          <Button type="button" variant={"secondary"}>
+            Закрыть
+          </Button>
+        </DialogClose>
+      )}
     </DialogContent>
   );
 };

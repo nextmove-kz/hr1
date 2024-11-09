@@ -26,7 +26,7 @@ const SignIn = () => {
                 description: "Данного пользователя не существует",
               });
             } else {
-              router.push("/dashboard/1");
+              router.push("/dashboard");
             }
           }}
         >

@@ -6,7 +6,6 @@ import SignIn from "./sign-in";
 import { LogOutButton } from "./logOutButton";
 import { Dialog, DialogTrigger } from "./ui/dialog";
 import { FileUploader } from "./FileUploader";
-import VacancyModal from "./VacancyModal";
 
 export default async function Navbar() {
   const user = await getUser();
@@ -18,9 +17,6 @@ export default async function Navbar() {
       <h1 className="text-2xl font-bold">HR1</h1>
       <div className="flex gap-4 items-center">
         <Dialog>
-          <DialogTrigger asChild>
-            <VacancyModal />
-          </DialogTrigger>
           <DialogTrigger asChild>
             <Button variant="outline">Добавить резюме</Button>
           </DialogTrigger>

@@ -7,11 +7,11 @@ import { LogOutButton } from "./logOutButton";
 import { Dialog, DialogTrigger } from "./ui/dialog";
 import { FileUploader } from "./FileUploader";
 import DrawerComponent from "./Drawer";
+import AddResume from "./AddResume";
 
 export default async function Navbar() {
   const user = await getUser();
   const auth = await isLoggedIn();
-  console.log("auth" + auth);
 
   return (
     <nav className="flex justify-between items-center p-4 border-b-[1px] border-slate-200">
@@ -20,13 +20,12 @@ export default async function Navbar() {
         <DrawerComponent />
       </div>
       <div className="flex gap-4 items-center">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">Добавить резюме</Button>
-          </DialogTrigger>
-          <FileUploader />
-        </Dialog>
-        {user && auth && <LogOutButton />}
+        {user && auth && (
+          <>
+            <AddResume />
+            <LogOutButton />
+          </>
+        )}
       </div>
     </nav>
   );

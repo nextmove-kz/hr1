@@ -36,9 +36,8 @@ export type AuthSystemFields<T = never> = {
 // Record types for each collection
 
 export enum ResumeStatusOptions {
-	"liked" = "liked",
-	"disliked" = "disliked",
-	"no_status" = "no_status",
+	"reject" = "reject",
+	"accept" = "accept",
 }
 export type ResumeRecord = {
 	cons?: string

@@ -27,6 +27,7 @@ import {
 } from "@/api/api_types";
 import { zapros } from "@/api/ai/anthropic";
 import { useToast } from "@/hooks/use-toast";
+import { matchResumeToVacancy } from "@/utils/matchResume";
 
 interface ParsedPDF {
   fileName: string;
@@ -86,7 +87,7 @@ export const FileUploader = () => {
         const pdfDoc = await getPDFDocument(pdfFile);
         const text = await extractTextFromPDF(pdfDoc);
 
-        results.push({ fileName, text, file: pdfFile }); // Include the original file
+        results.push({ fileName, text, file: pdfFile });
       } catch (error) {
         console.error(`Error processing ${fileName}:`, error);
       }
@@ -98,6 +99,7 @@ export const FileUploader = () => {
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
+    if (!vacancy) return;
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
@@ -108,19 +110,22 @@ export const FileUploader = () => {
     try {
       if (files[0].name.toLowerCase().endsWith(".zip")) {
         const results = await handleZipFile(files[0]);
-        setParsedFiles(results);
+        const filtered = results.filter((file) =>
+          matchResumeToVacancy(file.text, vacancy)
+        );
+        setParsedFiles(filtered);
       } else if (files[0].name.toLowerCase().endsWith(".pdf")) {
         const result = await handleSinglePDF(files[0]);
         setParsedFiles([result]);
       } else {
-        throw new Error("Please upload a PDF or ZIP file");
+        throw new Error("Пожалуйста, загрузите PDF или ZIP файл");
       }
     } catch (error) {
       console.error("Error parsing files:", error);
       alert(
         error instanceof Error
           ? error.message
-          : "Error parsing files. Please try again."
+          : "Ошибка обработки файлов. Пожалуйста, попробуйте еще раз."
       );
     } finally {
       setLoading(false);

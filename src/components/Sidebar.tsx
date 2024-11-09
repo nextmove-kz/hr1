@@ -16,7 +16,7 @@ const Sidebar: React.FC = () => {
   const inputValue = searchParams.get("inputValue") || "";
 
   return (
-    <div className="sm:flex flex-col min-w-[270px] border-r p-4 space-y-4 h-[92dvh] hidden">
+    <div className="2xl:flex xl:flex lg:flex md:flex flex-col min-w-[270px] border-r p-4 space-y-4 h-[92dvh] hidden">
       <Search />
       <VacancyList inputValue={inputValue} />
       <Separator />

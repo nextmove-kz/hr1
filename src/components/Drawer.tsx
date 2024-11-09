@@ -58,7 +58,7 @@ export default function DrawerComponent() {
   const [open, setOpen] = React.useState(false);
 
   return (
-    <div className="xl:hidden 2xl:hidden lg:hidden">
+    <div className="xl:hidden 2xl:hidden lg:hidden md:hidden">
       <Drawer open={open} onOpenChange={setOpen}>
         <DrawerTrigger asChild>
           <Button variant="outline" className="w-auto">

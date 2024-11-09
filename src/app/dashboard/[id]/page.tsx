@@ -37,11 +37,13 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
     const filterData = () => {
       if (statusFilter === "") {
         const filtered = resumes.filter((resume) => !resume.status);
+        filtered.sort((a, b) => b.rating - a.rating);
         setFilteredResumes(filtered);
       } else {
         const filtered = resumes.filter(
           (resume) => resume.status === statusFilter
         );
+        filtered.sort((a, b) => b.rating - a.rating);
         setFilteredResumes(filtered);
       }
     };

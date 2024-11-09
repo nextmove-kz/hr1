@@ -24,7 +24,7 @@ const DashboardPage = async ({ params }: { params: { id: string } }) => {
               <AccordionTrigger className="hover:no-underline">
                 <div className="flex justify-between items-center w-full">
                   <span className="text-lg font-medium">
-                    {resume?.full_name}
+                    {resume?.fullName}
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-sm">Rating: {resume.rating}</span>
@@ -33,20 +33,19 @@ const DashboardPage = async ({ params }: { params: { id: string } }) => {
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2 pt-2">
-                  {resume.pros && <div className="text-sm">{resume?.pros}</div>}
-                  {resume.pros.split(", ").map((pro: string, index: number) => (
+                  {resume.pros.split("\n").map((pro: string, index: number) => (
                     <div key={index} className="text-sm text-green-600">
-                      {pro}
+                      + {pro}
                     </div>
                   ))}
-                  {resume.cons.split(", ").map((con: string, index: number) => (
+                  {resume.cons.split("\n").map((con: string, index: number) => (
                     <div key={index} className="text-sm text-red-600">
-                      {con}
+                      - {con}
                     </div>
                   ))}
                   {resume.summary && (
                     <div className="text-sm text-muted-foreground">
-                      Conclusion: {resume.summary}
+                      Краткое описание: {resume.summary}
                     </div>
                   )}
                 </div>

@@ -47,6 +47,8 @@ export type ResumeRecord = {
 	rating?: number
 	resume?: string
 	status?: ResumeStatusOptions
+	summary?: string
+	vacancy?: RecordIdString
 }
 
 export type UsersRecord = {
@@ -75,6 +77,7 @@ export type VacancyRecord = {
 	experience?: VacancyExperienceOptions
 	maxSalary?: number
 	minSalary?: number
+	resume?: RecordIdString[]
 	title: string
 }
 

@@ -175,29 +175,20 @@ const DashboardPage = ({ params }: { params: { id: string } }) => {
               <AccordionContent>
                 <div className="space-y-2 pt-2">
                   <div className="flex gap-6">
-                    <div className="">
-                      {resume.pros
-                        .split(", ")
-                        .map((pro: string, index: number) => (
-                          <div key={index} className="text-sm text-green-600">
-                            {pro}
-                          </div>
-                        ))}
+                  {resume.pros.split("\n").map((pro: string, index: number) => (
+                    <div key={index} className="text-sm text-green-600">
+                      + {pro}
                     </div>
-                    <div className="">
-                      {resume.cons
-                        .split(", ")
-                        .map((con: string, index: number) => (
-                          <div key={index} className="text-sm text-red-600">
-                            {con}
-                          </div>
-                        ))}
+                  ))}
+                  {resume.cons.split("\n").map((con: string, index: number) => (
+                    <div key={index} className="text-sm text-red-600">
+                      - {con}
                     </div>
                   </div>
                   <Separator />
                   {resume.summary && (
                     <div className="text-sm text-muted-foreground">
-                      Заключение: {resume.summary}
+                      Краткое описание: {resume.summary}
                     </div>
                   )}
                 </div>

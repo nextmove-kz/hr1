@@ -4,6 +4,8 @@ import Link from "next/link";
 import { getUser, isLoggedIn, logOut } from "@/api/auth/sign-in";
 import SignIn from "./sign-in";
 import { LogOutButton } from "./logOutButton";
+import { Dialog, DialogTrigger } from "./ui/dialog";
+import { FileUploader } from "./FileUploader";
 
 export default async function Navbar() {
   const user = await getUser();
@@ -14,8 +16,6 @@ export default async function Navbar() {
     <nav className="flex justify-between items-center p-4 border-b-[1px] border-slate-200">
       <h1 className="text-2xl font-bold">HR1</h1>
       <div className="flex gap-4 items-center">
-        <Button variant="outline">Добавить резюме</Button>
-
         {user && auth ? (
           <>
             <p>{user.email}</p>
@@ -24,6 +24,15 @@ export default async function Navbar() {
         ) : (
           <></>
         )}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button variant="outline">Добавить резюме</Button>
+          </DialogTrigger>
+          <FileUploader />
+        </Dialog>
+        <Link href="#" className="">
+          Выход
+        </Link>
       </div>
     </nav>
   );

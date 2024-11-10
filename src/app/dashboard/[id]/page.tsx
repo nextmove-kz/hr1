@@ -14,6 +14,25 @@ import {
   VacancyRecord,
   VacancyResponse,
 } from "@/api/api_types";
+import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSubContent,
+  DropdownMenuGroup,
+  DropdownMenuCheckboxItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+  DropdownMenuRadioItem,
+  DropdownMenuRadioGroup,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
@@ -29,6 +48,10 @@ import { useDebouncedCallback } from "use-debounce";
 import MarkInput from "@/components/MarkInput";
 
 export default function DashboardPage({ params }: { params: { id: string } }) {
+  const [sliderValue, setSliderValue] = useState<any>();
+  const [experienceState, setExperienceState] = useState("");
+  const [educationState, setEducationState] = useState("");
+  const [cityState, setCityState] = useState("");
   const id = params.id;
   const router = useRouter();
   const [resumes, setResumes] = useState<ResumeResponse[]>([]);
@@ -57,7 +80,28 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
   }, [id, router, reloadResumes]);
 
   useEffect(() => {
-    router.refresh();
+    let filtered = resumes;
+
+    if (statusFilter === "") {
+      filtered = filtered.filter((resume) => !resume.status);
+    } else if (statusFilter !== "all") {
+      filtered = filtered.filter((resume) => resume.status === statusFilter);
+    }
+
+    if (educationState) {
+      const educationCheck = educationState === "true";
+      filtered = filtered.filter(
+        (resume) => resume.education === educationCheck
+      );
+    }
+
+    if (cityState) {
+      filtered = filtered.filter((resume) => resume.city === cityState);
+    }
+
+    if (sliderValue) {
+      filtered = filtered.filter((resume) => resume.rating >= +sliderValue);
+    }
 
     const filterData = () => {
       if (statusFilter === "") {
@@ -83,10 +127,31 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
         filtered.sort((a, b) => b.rating - a.rating);
         setFilteredResumes(filtered);
         router.refresh();
+    if (experienceState) {
+      if (experienceState === "none") {
+        filtered = filtered.filter((resume) => resume.experience === "none");
+      } else if (experienceState === "1-3") {
+        filtered = filtered.filter((resume) => resume.experience === "1-3");
+      } else if (experienceState === "3-6") {
+        filtered = filtered.filter((resume) => resume.experience === "3-6");
+      } else if (experienceState === "6+") {
+        filtered = filtered.filter((resume) => resume.experience === "6+");
       }
-    };
-    filterData();
-  }, [statusFilter, resumes]);
+    }
+
+    filtered.sort((a, b) => b.rating - a.rating);
+
+    setFilteredResumes(filtered);
+
+    router.refresh();
+  }, [
+    statusFilter,
+    educationState,
+    experienceState,
+    resumes,
+    cityState,
+    sliderValue,
+  ]);
 
   const getRatingColor = (rating: number) => {
     if (rating >= 90) return "text-green-500";
@@ -124,8 +189,81 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-start md:justify-end">
             <VacancyModal />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button>Фильтры</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="flex flex-col gap-1">
+                <Input
+                  value={sliderValue}
+                  placeholder="Рейтинг %"
+                  type="number"
+                  onChange={(event) => {
+                    if (+event.target.value > 100) return;
+                    if (+event.target.value < 0) return;
+                    setSliderValue(event.target.value);
+                  }}
+                ></Input>
+                <Input
+                  placeholder="Город"
+                  onChange={(event) => {
+                    setCityState(event.target.value);
+                  }}
+                ></Input>
+
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <span>Опыт работы</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={experienceState}
+                        onValueChange={setExperienceState}
+                      >
+                        <DropdownMenuRadioItem value="none">
+                          Без опыта
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="1-3">
+                          1-3
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="3-6">
+                          3-6
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="6+">
+                          6+
+                        </DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <span>Высшее образование</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={educationState}
+                        onValueChange={setEducationState}
+                      >
+                        <DropdownMenuRadioItem value="true">
+                          Да
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="false">
+                          Нет
+                        </DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <select
               className="bg-transparent border px-1 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
               value={statusFilter}
@@ -139,6 +277,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
             </select>
           </div>
         </div>
+
         <Accordion type="single" collapsible className="space-y-4 mr-10">
           {filteredResumes.length > 0 ? (
             filteredResumes.map((resume: ResumeResponse) => (
@@ -211,6 +350,16 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                       {resume.setMark ? `| Оценка HR: ${resume?.setMark}` : ""}
                     </span>
                     <div className="flex items-center gap-2 mr-5">
+                      <div className="flex flex-col">
+                        <div className="flex gap-1 justify-end">
+                          <p>Hard:</p>
+                          {resume.resumeHard}
+                        </div>
+                        <div className="flex gap-1 justify-end">
+                          <p>Soft:</p>
+                          {resume.resumeSoft}
+                        </div>
+                      </div>
                       <div className="relative w-10 h-10 ">
                         <svg className="w-full h-full " viewBox="0 0 100 100">
                           <circle
@@ -250,6 +399,21 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
+                  <div className="flex gap-2">
+                    {resume.city && (
+                      <Badge variant="outline">{resume.city}</Badge>
+                    )}
+                    {resume.experience && (
+                      <Badge variant="outline">{resume.experience}</Badge>
+                    )}
+                    {resume.education == true ? (
+                      <Badge>Есть высшее образование</Badge>
+                    ) : (
+                      <Badge variant="destructive">
+                        Нет высшего образования
+                      </Badge>
+                    )}
+                  </div>
                   <div className="space-y-2 pt-2">
                     {resume.accepted === "invite" && (
                       <MarkInput resume={resume} />

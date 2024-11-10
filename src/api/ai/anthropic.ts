@@ -9,6 +9,12 @@ export type AISummary = {
   advantages: string;
   disadvantages: string;
   summary: string;
+  contactData: string;
+  resumeSoft: string;
+  resumeHard: string;
+  city: string;
+  experience: string;
+  education: boolean;
 };
 
 export const formatJobDescription = (
@@ -55,12 +61,19 @@ export async function zapros(
     3) Соответствие уровня образования
     4) Релевантность предыдущих проектов
     5) Соответствие дополнительным требованиям вакансии
+    6) Соотвествие уровню заработной платы
 
     Для каждого резюме подготовьте анализ в следующем формате JSON:
     {
     "fullName": "",
     "resumeJobName": "",
     "resumeScore": 0,
+    "resumeHard": 0,
+    "resumeSoft": 0,
+    "contactData": "",
+    "city": "",
+    "experience": "",
+    "education": "",
     "advantages": [
         "",
         ""
@@ -76,29 +89,44 @@ export async function zapros(
     - fullName: полное имя кандидата, полученное из текста резюме
     - resumeJobName: как кандидат называет свою профессию в резюме (берите из первых строк резюме, не из опыта работы)
     - resumeScore: оценка от 1 до 100, где 100 - идеальное совпадение с требованиями
+    - resumeHard: оценка от 1 до 100, где 100 - идеальное совпадение с требованиями
+    - resumeSoft: оценка от 1 до 100, где 100 - идеальное совпадение с требованиями
+    - contactData: Контактные данные кандидата
+    - city: Город кандидата
+    - experience: Опыт работы кандидата
+    - education: Наличие или отсутсвие высшего образовния у кандидата (true/false)
     - advantages: список преимуществ резюме относительно требований вакансии
     - disadvantages: список несоответствий или недостатков относительно требований
     - summary: обобщенное описание кандидата и резюме в 2-3 предложения и оценка того, насколько он подходит на позицию
     Важные замечания:
     - Все значения в JSON должны быть только на русском языке
     - Предоставьте только заполненный JSON для каждого резюме, без дополнительных комментариев
-    - Если предоставлено несколько резюме, проанализируйте каждое отдельно и предоставьте отдельный JSON для каждого. Финальный результат всегда должен быть списком JSON.
+    - Если предоставлено несколько резюме, проанализируйте каждое отдельно и предоставьте отдельный JSON для каждого. Финальный результат всегда должен быть списком JSON.  
 
     Приступайте к анализу и формированию JSON для каждого резюме.`;
   const msg = await anthropic.messages.create({
     model: "claude-3-5-sonnet-20241022",
-    max_tokens: 1024,
+    max_tokens: 2024,
     messages: [{ role: "user", content: textMessage }],
   });
+  console.log("msg", msg.content);
   const response = msg.content[0] as { text: any };
-  const data = JSON.parse(response.text);
-  const final: ResumeRecord = data.map((item: any) => ({
+  console.log(response.text);
+  let data = JSON.parse(response.text);
+  if (!Array.isArray(data)) data = [data];
+  const final: ResumeRecord[] = data.map((item: any) => ({
     fullName: item.fullName,
     jobName: item.resumeJobName,
     rating: item.resumeScore,
     pros: item.advantages.join("\n"),
     cons: item.disadvantages.join("\n"),
     summary: item.summary,
+    city: item.city,
+    experience: item.experience,
+    education: item.education,
+    contactData: item.contactData,
+    resumeSoft: item.resumeSoft,
+    resumeHard: item.resumeHard,
   }));
   console.log(final);
   return final;

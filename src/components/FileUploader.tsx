@@ -1,31 +1,40 @@
-"use client";
-
-import { extractTextFromPDF } from "@/utils/extractText";
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "./ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
 import { getPDFDocument } from "@/utils/getPdfDocument";
-import { useEffect, useState } from "react";
+import { extractTextFromPDF } from "@/utils/extractText";
 import {
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import { DialogDescription } from "@radix-ui/react-dialog";
 import { Input } from "./ui/input";
-import { ScrollArea } from "./ui/scroll-area";
 import { Label } from "./ui/label";
 import JSZip from "jszip";
 import { usePathname, useRouter } from "next/navigation";
-import { Button } from "./ui/button";
 import clientPocketBase from "@/api/client_pb";
 import { ResumeRecord, VacancyResponse } from "@/api/api_types";
 import { zapros } from "@/api/ai/anthropic";
-import { useToast } from "@/hooks/use-toast";
-import { matchResumeToVacancy } from "@/utils/matchResume";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 
 interface ParsedPDF {
   fileName: string;
   text: string;
   file: File;
+}
+
+interface ProcessedResume extends ResumeRecord {
+  id?: string;
+  resume?: string;
 }
 
 export const FileUploader = () => {
@@ -35,6 +44,9 @@ export const FileUploader = () => {
   const vacancyParam = pathname.split("/")[2];
   const vacancyId = vacancyParam ? vacancyParam.split("?")[0] : "";
   const [parsedFiles, setParsedFiles] = useState<ParsedPDF[]>([]);
+  const [processedResumes, setProcessedResumes] = useState<ProcessedResume[]>(
+    []
+  );
   const [loading, setLoading] = useState(false);
   const [vacancy, setVacancy] = useState<VacancyResponse>();
   const [processingAI, setProcessingAI] = useState(false);
@@ -98,23 +110,13 @@ export const FileUploader = () => {
 
     setLoading(true);
     setParsedFiles([]);
+    setProcessedResumes([]);
     setProceessingFinished(false);
 
     try {
       if (files[0].name.toLowerCase().endsWith(".zip")) {
         const results = await handleZipFile(files[0]);
-        console.log(results);
-        // const filtered = results.filter((file) =>
-        //   matchResumeToVacancy(file.text, vacancy)
-        // );
-        // if (filtered.length === 0) {
-        //   toast({
-        //     variant: "destructive",
-        //     title: "Ни одно резюме не подошло к вакансии",
-        //   });
-        // } else {
         setParsedFiles(results);
-        // }
       } else if (files[0].name.toLowerCase().endsWith(".pdf")) {
         const result = await handleSinglePDF(files[0]);
         setParsedFiles([result]);
@@ -123,22 +125,26 @@ export const FileUploader = () => {
       }
     } catch (error) {
       console.error("Error parsing files:", error);
-      alert(
-        error instanceof Error
-          ? error.message
-          : "Ошибка обработки файлов. Пожалуйста, попробуйте еще раз."
-      );
+      toast({
+        variant: "destructive",
+        title: "Ошибка обработки файлов",
+        description:
+          error instanceof Error ? error.message : "Неизвестная ошибка",
+      });
     } finally {
       setLoading(false);
     }
   };
 
+  const chunkArray = (arr: ParsedPDF[], size = 3) => {
+    return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
+      arr.slice(i * size, i * size + size)
+    );
+  };
+
   const appendFormData = (formData: FormData, data: Record<string, any>) => {
     Object.entries(data).forEach(([key, value]) => {
-      if (value === null || value === undefined) {
-        return;
-      }
-
+      if (value === null || value === undefined) return;
       if (typeof value === "string" || typeof value === "boolean") {
         formData.append(key, String(value));
       } else if (typeof value === "number") {
@@ -149,108 +155,97 @@ export const FileUploader = () => {
     });
   };
 
-  const chunkArray = (arr: ParsedPDF[], size = 3) => {
-    return Array.from({ length: Math.ceil(arr.length / size) }, (_, i) =>
-      arr.slice(i * size, i * size + size)
-    );
+  const sendToAI = async (chunk: ParsedPDF[]) => {
+    if (!vacancy) return;
+    const formattedChunk = chunk
+      .map((file, index) => `<resume${index}>${file.text}</resume${index}>`)
+      .join("\n");
+    return zapros(vacancy, formattedChunk);
+  };
+
+  const getRatingColor = (rating: number) => {
+    if (rating >= 80) return "text-green-500";
+    if (rating >= 60) return "text-yellow-500";
+    return "text-red-500";
+  };
+
+  const getDashArray = (rating: number) => {
+    return `${(rating / 100) * 251.2} 251.2`;
   };
 
   const sendResume = async () => {
-    console.log(vacancy);
-    console.log(parsedFiles.length);
     if (!vacancy) return;
-    console.log(parsedFiles);
     const chunks = chunkArray(parsedFiles);
+    const totalChunks = chunks.length;
 
     setProcessingAI(true);
 
-    for (const chunk of chunks) {
+    for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+      const chunk = chunks[chunkIndex];
       try {
+        toast({
+          title: `Анализ резюме ${chunkIndex * 3 + 1}-${Math.min(
+            (chunkIndex + 1) * 3,
+            parsedFiles.length
+          )}`,
+          description: `Обработано ${chunkIndex + 1} из ${totalChunks} пакетов`,
+        });
+
         let aiResponse: ResumeRecord[] | undefined = await sendToAI(chunk);
         if (!aiResponse) continue;
         aiResponse = aiResponse.splice(0, chunk.length);
 
         if (Array.isArray(aiResponse)) {
-          for (let i = 0; i < aiResponse.length; i++) {
-            const resume = aiResponse[i];
-            const formData = new FormData();
+          const newProcessedResumes = await Promise.all(
+            aiResponse.map(async (resume, i) => {
+              const formData = new FormData();
+              appendFormData(formData, resume);
+              formData.append("resume", chunk[i].file);
+              formData.append("vacancy", vacancy.id);
+              console.log("Form Data", JSON.stringify(formData.entries()));
 
-            appendFormData(formData, resume);
-            formData.append("resume", chunk[i].file);
-            formData.append("vacancy", vacancy.id);
+              const response = await clientPocketBase
+                .collection("resume")
+                .create(formData);
+              return { ...resume, id: response.id, resume: chunk[i].file.name };
+            })
+          );
 
-            await clientPocketBase.collection("resume").create(formData);
-          }
-        } else {
-          const formData = new FormData();
-
-          appendFormData(formData, aiResponse);
-
-          formData.append("resume", chunk[0].file);
-          formData.append("vacancy", vacancy.id);
-
-          await clientPocketBase.collection("resume").create(formData);
+          setProcessedResumes((prev) => [...prev, ...newProcessedResumes]);
         }
+
+        toast({
+          title: `Успешно обработано ${chunk.length} резюме`,
+          description: `Пакет ${
+            chunkIndex + 1
+          } из ${totalChunks} загружен в базу данных`,
+        });
       } catch (error) {
         console.error("Error sending resume:", error);
-        toast({ title: "Произошла ошибка при обработке резюме" });
-      } finally {
+        toast({
+          variant: "destructive",
+          title: "Ошибка обработки",
+          description: `Ошибка при обработке пакета ${
+            chunkIndex + 1
+          } из ${totalChunks}`,
+        });
       }
     }
+
     router.refresh();
-    toast({ title: "Файлы резюме загружены" });
+    toast({
+      title: "Обработка завершена ✨",
+      description: `Успешно проанализировано и загружено ${parsedFiles.length} резюме`,
+    });
     setProceessingFinished(true);
-    setParsedFiles([]);
     setProcessingAI(false);
     setLoading(false);
   };
 
-  const sendToAI = async (chunk: ParsedPDF[]) => {
-    if (!vacancy) return;
-    const formattedChunk = chunk
-      .map((file, index) => {
-        return `<resume${index}>${file.text}</resume${index}>`;
-      })
-      .join("\n");
-    return zapros(vacancy, formattedChunk);
-  };
-  const mockAI = async (chunk: ParsedPDF[]) => {
-    return [
-      {
-        fullName: "Луков Иван Дмитриевич",
-        jobName: "Elixir Разработчик",
-        rating: 40,
-        pros:
-          "Имеет опыт full-stack разработки\n" +
-          "Знание современных технологий (React, TypeScript)\n" +
-          "Высокий уровень английского языка (C1)\n" +
-          "Опыт работы с Docker и базами данных",
-        cons:
-          "Основной опыт в Elixir и backend разработке, а не frontend\n" +
-          "Недостаточный опыт работы (менее 2 лет)\n" +
-          "Отсутствие законченного высшего образования\n" +
-          "Несоответствие основного стека технологий требуемой позиции",
-        summary:
-          "Молодой специалист с опытом full-stack разработки, но основной фокус на backend-разработке с использованием Elixir. Несмотря на наличие навыков работы с frontend технологиями, кандидат имеет недостаточный опыт для позиции frontend разработчика и не полностью соответствует требованиям вакансии.",
-      },
-      {
-        fullName: "Кожахметов Давид",
-        jobName: "React Frontend Developer",
-        rating: 55,
-        pros:
-          "Профильный опыт работы во frontend-разработке\n" +
-          "Знание требуемых технологий (React, JavaScript)\n" +
-          "Опыт работы с современными инструментами разработки\n" +
-          "Релевантный опыт создания пользовательских интерфейсов",
-        cons:
-          "Недостаточный опыт работы (2 года вместо требуемых 3-6 лет)\n" +
-          "Ограниченный стек используемых технологий\n" +
-          "Незаконченное высшее образование\n" +
-          "Короткий срок работы на последнем месте",
-        summary:
-          "Frontend-разработчик с профильным опытом в React-разработке и создании пользовательских интерфейсов. Несмотря на релевантный опыт работы, кандидат не достигает требуемого уровня опыта в 3-6 лет, что может быть существенным ограничением для данной позиции.",
-      },
-    ];
+  const humanizeText = (length: number) => {
+    if (length === 1) return "файл";
+    if (length > 1 && length < 5) return "файла";
+    if (length >= 5) return "файлов";
   };
 
   return (
@@ -261,7 +256,7 @@ export const FileUploader = () => {
           Поддерживаемые форматы: .pdf для единичной загрузки, .zip для массовой
         </DialogDescription>
       </DialogHeader>
-      <div className="grid w-full  items-center gap-1.5">
+      <div className="grid w-full items-center gap-1.5">
         <Label>Выберите файл</Label>
         <Input type="file" accept=".pdf,.zip" onChange={handleFileChange} />
       </div>
@@ -274,31 +269,99 @@ export const FileUploader = () => {
           </div>
         )}
 
-        {parsedFiles.length > 0 && (
-          <div className="mt-4">
-            <h2 className="text-xl font-semibold mb-2">
-              Обработан{parsedFiles.length > 1 ? "о " : " "}{" "}
-              {parsedFiles.length} {humanizeText(parsedFiles.length)}
-            </h2>
-            {parsedFiles.map((file, index) => (
-              <div key={index} className="">
-                <h3 className="text-md">{file.fileName}</h3>
-                <p className="text-sm truncate text-gray-700">{file.text}</p>
-              </div>
+        {processedResumes.length > 0 ? (
+          <Accordion type="single" collapsible className="space-y-4">
+            {processedResumes.map((resume, index) => (
+              <AccordionItem key={index} value={`resume-${index}`}>
+                <AccordionTrigger className="hover:no-underline">
+                  <div className="flex justify-between items-center w-full">
+                    <span className="text-lg font-medium">
+                      {resume.fullName}
+                    </span>
+                    <div className="flex items-center gap-2 mr-5">
+                      {resume.rating && (
+                        <div className="relative w-10 h-10">
+                          <svg className="w-full h-full" viewBox="0 0 100 100">
+                            <circle
+                              className="text-gray-200 stroke-current"
+                              strokeWidth="10"
+                              cx="50"
+                              cy="50"
+                              r="40"
+                              fill="transparent"
+                            ></circle>
+                            <circle
+                              className={`${getRatingColor(
+                                resume.rating
+                              )} progress-ring__circle stroke-current`}
+                              strokeWidth="10"
+                              strokeLinecap="round"
+                              cx="50"
+                              cy="50"
+                              r="40"
+                              fill="transparent"
+                              strokeDasharray={getDashArray(resume.rating)}
+                              strokeDashoffset="calc(251.2px - (251.2px * 70) / 100)"
+                            ></circle>
+                            <text
+                              x="50"
+                              y="50"
+                              fontSize="32"
+                              textAnchor="middle"
+                              alignmentBaseline="middle"
+                              className="font-semibold"
+                            >
+                              {resume.rating}
+                            </text>
+                          </svg>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-2 pt-2">
+                    {resume.summary && (
+                      <div className="text-sm text-muted-foreground">
+                        Краткое описание: {resume.summary}
+                      </div>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
+        ) : (
+          parsedFiles.length > 0 && (
+            <div className="mt-4 space-y-4">
+              <h2 className="text-xl font-semibold">
+                Обработано {parsedFiles.length}{" "}
+                {humanizeText(parsedFiles.length)}
+              </h2>
+              {parsedFiles.map((file, index) => (
+                <div key={index} className="border rounded-lg p-4">
+                  <h3 className="text-md font-medium">{file.fileName}</h3>
+                  <p className="text-sm text-gray-700 mt-2 line-clamp-3">
+                    {file.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )
         )}
       </ScrollArea>
+
       {!proceessingFinished ? (
         <Button
           disabled={parsedFiles.length === 0 || processingAI}
           onClick={sendResume}
+          className="mt-4"
         >
           {processingAI ? "Оцениваем резюме... ✨" : "Загрузить"}
         </Button>
       ) : (
         <DialogClose asChild>
-          <Button type="button" variant={"secondary"}>
+          <Button type="button" variant="secondary" className="mt-4">
             Закрыть
           </Button>
         </DialogClose>
@@ -307,8 +370,4 @@ export const FileUploader = () => {
   );
 };
 
-const humanizeText = (length: number) => {
-  if (length === 1) return "файл";
-  if (length > 1 && length < 5) return "файла";
-  if (length >= 5) return "файлов";
-};
+export default FileUploader;

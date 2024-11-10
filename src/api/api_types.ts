@@ -56,12 +56,15 @@ export type ResumeRecord = {
 	city?: string
 	cons?: string
 	education?: boolean
-	experience?: ResumeExperienceOptions
+	contactData?: string
+	experience?: string
 	fullName?: string
 	jobName?: string
 	pros?: string
 	rating?: number
 	resume?: string
+	resumeHard?: string
+	resumeSoft?: string
 	setMark?: number
 	status?: ResumeStatusOptions
 	summary?: string

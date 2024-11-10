@@ -8,6 +8,7 @@ import { Dialog, DialogTrigger } from "./ui/dialog";
 import { FileUploader } from "./FileUploader";
 import DrawerComponent from "./Drawer";
 import AddResume from "./AddResume";
+import Image from "next/image";
 
 export default async function Navbar() {
   const user = await getUser();
@@ -16,13 +17,16 @@ export default async function Navbar() {
   return (
     <nav className="flex justify-between items-center p-4 border-b-[1px] border-slate-200">
       <div className="flex gap-4">
-        <h1 className="text-3xl font-bold font-mono">HR1</h1>
+        <Link href="/">
+          <h1 className="text-3xl font-bold font-mono">HR1</h1>
+        </Link>
         <DrawerComponent />
       </div>
       <div className="flex gap-4 items-center">
         {user && auth && (
           <>
             <AddResume />
+            <Image src="/hh_logo.png" alt="hh logo" width={30} height={30} />
             <LogOutButton />
           </>
         )}

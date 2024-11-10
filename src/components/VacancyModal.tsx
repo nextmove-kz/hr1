@@ -20,6 +20,7 @@ import {
 import { Input } from "../components/ui/input";
 
 import {
+  ResumeResponse,
   VacancyEmploymentTypeOptions,
   VacancyExperienceOptions,
   VacancyRecord,
@@ -32,6 +33,7 @@ import { Textarea } from "./ui/textarea";
 import { updateVacancy } from "@/api/vacancy";
 import CloseVacancy from "./closeVacancy";
 import { ScrollArea } from "./ui/scroll-area";
+import { Separator } from "./ui/separator";
 
 interface Vacancy {
   title: string;
@@ -48,6 +50,7 @@ export default function VacancyModal() {
   const vacancyId = vacancyParam ? vacancyParam.split("?")[0] : "";
   const [vacancy, setVacancy] = useState<VacancyResponse>();
   const [openEdit, setOpenEdit] = useState(false);
+  const [resumes, setResumes] = useState<ResumeResponse[]>();
 
   const [employmentType, setemploymentType] = useState("");
   const [title, setTitle] = useState("");
@@ -85,6 +88,18 @@ export default function VacancyModal() {
         employmentType as keyof typeof VacancyEmploymentTypeOptions
       ],
   };
+  useEffect(() => {
+    if (vacancyId) {
+      clientPocketBase
+        .collection("resume")
+        .getFullList({
+          filter: `vacancy = "${vacancyId}" && accepted = "invite"`,
+        })
+        .then((data) => {
+          setResumes(data);
+        });
+    }
+  }, [pathname]);
   useEffect(() => {
     if (vacancyId) {
       clientPocketBase
@@ -211,7 +226,7 @@ export default function VacancyModal() {
                 </>
               )}
             </div>
-            <ScrollArea className="h-80">
+            <ScrollArea className="h-60">
               <div className="space-y-6">
                 {vacancy?.description && (
                   <p
@@ -220,6 +235,12 @@ export default function VacancyModal() {
                   ></p>
                 )}
               </div>
+            </ScrollArea>
+            <Separator />
+            <ScrollArea className="h-52">
+              {resumes?.map((resume) => (
+                <p>{resume.fullName}</p>
+              ))}
             </ScrollArea>
             <div>
               <CloseVacancy item={vacancy as VacancyResponse} />

@@ -21,6 +21,9 @@ import CloseVacancy from "@/components/closeVacancy";
 import { vacancyById } from "@/api/vacancy";
 import VacancyModal from "@/components/VacancyModal";
 import { useRouter } from "next/navigation";
+import InviteButton from "@/components/InviteButton";
+import { useAtom } from "jotai";
+import { inviteAtom } from "@/lib/atoms";
 
 export default function DashboardPage({ params }: { params: { id: string } }) {
   const id = params.id;
@@ -29,7 +32,8 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
   const [filteredResumes, setFilteredResumes] = useState<ResumeResponse[]>([]);
   const [statusFilter, setStatusFilter] = useState<string>("");
   const [vacancy, setVacancy] = useState<VacancyRecord>();
-  const [reloadResumes, setReloadResumes] = useState<boolean>(false);
+  const [reloadResumes, setReloadResumes] = useAtom(inviteAtom);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     router.refresh();
@@ -59,7 +63,15 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
         setFilteredResumes(filtered);
         router.refresh();
       } else if (statusFilter === "all") {
-        setFilteredResumes(resumes);
+        const sorted = resumes.sort((a, b) => b.rating - a.rating);
+        setFilteredResumes(sorted);
+        router.refresh();
+      } else if (statusFilter === "invited") {
+        const filtered = resumes.filter(
+          (resume) => resume.accepted === "invite"
+        );
+        filtered.sort((a, b) => b.rating - a.rating);
+        setFilteredResumes(filtered);
         router.refresh();
       } else {
         const filtered = resumes.filter(
@@ -96,13 +108,15 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="">
-      <div className="flex-1 p-6">
-        <div className="flex text-xl font-semibold mb-4 justify-between">
+      <div className="flex-1 p-6 text-xl">
+        <h1 className="font-semibold">{vacancy && vacancy.title}</h1>
+        <div className="flex items-start text-xl font-semibold mb-4 justify-between">
           <div className="flex items-center gap-2">
-            <h1>{vacancy && vacancy.title}</h1>
             {vacancy.archive && (
               <>
-                <Badge variant="destructive">В архиве</Badge>
+                <Badge variant="destructive" className="mt-2">
+                  В архиве
+                </Badge>
               </>
             )}
           </div>
@@ -118,6 +132,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
               <option value="accept">Принятые</option>
               <option value="reject">Отклоненные</option>
               <option value="all">Все</option>
+              <option value="invited">Приглашенные</option>
             </select>
           </div>
         </div>
@@ -125,6 +140,9 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
           {filteredResumes.length > 0 ? (
             filteredResumes.map((resume: ResumeResponse) => (
               <AccordionItem key={resume.id} value={`resume-${resume.id}`}>
+                {resume?.status === "accept" && !resume?.accepted && (
+                  <InviteButton id={resume.id} />
+                )}
                 {!resume.status && (
                   <div className="absolute right-[10px] flex flex-col items-center gap-2 border border-gray-200 rounded-full p-1">
                     {!vacancy.archive && (

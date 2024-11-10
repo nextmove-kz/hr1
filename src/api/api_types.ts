@@ -39,13 +39,20 @@ export enum ResumeStatusOptions {
 	"reject" = "reject",
 	"accept" = "accept",
 }
+
+export enum ResumeAcceptedOptions {
+	"invite" = "invite",
+	"hire" = "hire",
+}
 export type ResumeRecord = {
+	accepted?: ResumeAcceptedOptions
 	cons?: string
 	fullName?: string
 	jobName?: string
 	pros?: string
 	rating?: number
 	resume?: string
+	setSalary?: number
 	status?: ResumeStatusOptions
 	summary?: string
 	vacancy?: RecordIdString
@@ -73,7 +80,7 @@ export enum VacancyExperienceOptions {
 export type VacancyRecord = {
 	archive?: boolean
 	city?: string
-	description?: string
+	description?: HTMLString
 	employment_type?: VacancyEmploymentTypeOptions
 	experience?: VacancyExperienceOptions
 	resume?: RecordIdString[]

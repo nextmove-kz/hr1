@@ -20,3 +20,15 @@ export const reject = async (id: string) => {
     const resume = await pb.collection("resume").update( id, {status: "reject" });
     return resume;
 };
+
+export const inviteResume = async (id: string) => {
+    const pb = clientPocketBase;
+    const resume = await pb.collection("resume").update( id, {accepted: "invite"});
+    return resume;
+};
+
+export const hireResume = async (id: string) => {
+    const pb = clientPocketBase;
+    const resume = await pb.collection("resume").update( id, {accepted: "hire"});
+    return resume;
+};

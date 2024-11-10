@@ -58,6 +58,9 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
         filtered.sort((a, b) => b.rating - a.rating);
         setFilteredResumes(filtered);
         router.refresh();
+      } else if (statusFilter === "all") {
+        setFilteredResumes(resumes);
+        router.refresh();
       } else {
         const filtered = resumes.filter(
           (resume) => resume.status === statusFilter
@@ -114,6 +117,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
               <option value="">Без статуса</option>
               <option value="accept">Принятые</option>
               <option value="reject">Отклоненные</option>
+              <option value="all">Все</option>
             </select>
           </div>
         </div>

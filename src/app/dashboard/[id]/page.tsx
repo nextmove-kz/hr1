@@ -252,7 +252,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                       </div>
                     )}
                     <Link
-                      href={`http://pocketbase.nextmove.kz:4321/api/files/fqb2dmpp193fo7f/${resume.id}/${resume.resume}`}
+                      href={`https://pocketbase.nextmove.kz/api/files/fqb2dmpp193fo7f/${resume.id}/${resume.resume}`}
                       target="_blank"
                       className="rounded-3xl h-8 w-10 text-blue-500 hover:text-blue-700 hover:underline transition-all 0.3s"
                     >

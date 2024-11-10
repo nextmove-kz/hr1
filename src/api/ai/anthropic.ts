@@ -92,7 +92,7 @@ export async function zapros(
   });
   const response = msg.content[0] as { text: any };
   const data = JSON.parse(response.text);
-  const final: ResumeRecord = data.map((item: any) => ({
+  const final: ResumeRecord[] = data.map((item: any) => ({
     fullName: item.fullName,
     jobName: item.resumeJobName,
     rating: item.resumeScore,

@@ -16,11 +16,11 @@ export default async function Navbar() {
 
   return (
     <nav className="flex justify-between items-center p-4 border-b-[1px] border-slate-200">
-      <div className="flex gap-4">
+      <div className="flex gap-2">
+        {user && auth && <DrawerComponent />}
         <Link href="/">
           <h1 className="text-3xl font-bold font-mono">HR1</h1>
         </Link>
-        <DrawerComponent />
       </div>
       <div className="flex gap-4 items-center">
         {user && auth && (

@@ -14,6 +14,25 @@ import {
   VacancyRecord,
   VacancyResponse,
 } from "@/api/api_types";
+import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSubContent,
+  DropdownMenuGroup,
+  DropdownMenuCheckboxItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+  DropdownMenuRadioItem,
+  DropdownMenuRadioGroup,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
@@ -21,8 +40,13 @@ import CloseVacancy from "@/components/closeVacancy";
 import { vacancyById } from "@/api/vacancy";
 import VacancyModal from "@/components/VacancyModal";
 import { useRouter } from "next/navigation";
+import { Input } from "@/components/ui/input";
 
 export default function DashboardPage({ params }: { params: { id: string } }) {
+  const [sliderValue, setSliderValue] = useState<any>();
+  const [experienceState, setExperienceState] = useState("");
+  const [educationState, setEducationState] = useState("");
+  const [cityState, setCityState] = useState("");
   const id = params.id;
   const router = useRouter();
   const [resumes, setResumes] = useState<ResumeResponse[]>([]);
@@ -50,28 +74,54 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
   }, [id, router, reloadResumes]);
 
   useEffect(() => {
-    router.refresh();
+    let filtered = resumes;
 
-    const filterData = () => {
-      if (statusFilter === "") {
-        const filtered = resumes.filter((resume) => !resume.status);
-        filtered.sort((a, b) => b.rating - a.rating);
-        setFilteredResumes(filtered);
-        router.refresh();
-      } else if (statusFilter === "all") {
-        setFilteredResumes(resumes);
-        router.refresh();
-      } else {
-        const filtered = resumes.filter(
-          (resume) => resume.status === statusFilter
-        );
-        filtered.sort((a, b) => b.rating - a.rating);
-        setFilteredResumes(filtered);
-        router.refresh();
+    if (statusFilter === "") {
+      filtered = filtered.filter((resume) => !resume.status);
+    } else if (statusFilter !== "all") {
+      filtered = filtered.filter((resume) => resume.status === statusFilter);
+    }
+
+    if (educationState) {
+      const educationCheck = educationState === "true";
+      filtered = filtered.filter(
+        (resume) => resume.education === educationCheck
+      );
+    }
+
+    if (cityState) {
+      filtered = filtered.filter((resume) => resume.city === cityState);
+    }
+
+    if (sliderValue) {
+      filtered = filtered.filter((resume) => resume.rating >= +sliderValue);
+    }
+
+    if (experienceState) {
+      if (experienceState === "none") {
+        filtered = filtered.filter((resume) => resume.experience === "none");
+      } else if (experienceState === "1-3") {
+        filtered = filtered.filter((resume) => resume.experience === "1-3");
+      } else if (experienceState === "3-6") {
+        filtered = filtered.filter((resume) => resume.experience === "3-6");
+      } else if (experienceState === "6+") {
+        filtered = filtered.filter((resume) => resume.experience === "6+");
       }
-    };
-    filterData();
-  }, [statusFilter, resumes]);
+    }
+
+    filtered.sort((a, b) => b.rating - a.rating);
+
+    setFilteredResumes(filtered);
+
+    router.refresh();
+  }, [
+    statusFilter,
+    educationState,
+    experienceState,
+    resumes,
+    cityState,
+    sliderValue,
+  ]);
 
   const getRatingColor = (rating: number) => {
     if (rating >= 90) return "text-green-500";
@@ -97,9 +147,25 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
   return (
     <div className="">
       <div className="flex-1 p-6">
-        <div className="flex text-xl font-semibold mb-4 justify-between">
-          <div className="flex items-center gap-2">
-            <h1>{vacancy && vacancy.title}</h1>
+        <div className="grid md:grid-cols-2 gap-y-2 grid-cols-1 text-xl font-semibold mb-4 justify-between items-center">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col  gap-2">
+              <h1>{vacancy && vacancy.title}</h1>
+              <p className="text-sm">
+                {sliderValue && (
+                  <>Минимальный процент соответствия: {sliderValue}</>
+                )}
+              </p>
+              {/* <Slider
+                defaultValue={sliderValue}
+                onValueChange={(value) => {
+                  setSliderValue(value);
+                }}
+                max={100}
+                step={1}
+              /> */}
+            </div>
+
             {vacancy.archive && (
               <>
                 <Badge variant="destructive">В архиве</Badge>
@@ -107,7 +173,79 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-start md:justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button>Фильтры</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="flex flex-col gap-1">
+                <Input
+                  value={sliderValue}
+                  placeholder="Рейтинг %"
+                  type="number"
+                  onChange={(event) => {
+                    if (+event.target.value > 100) return;
+                    if (+event.target.value < 0) return;
+                    setSliderValue(event.target.value);
+                  }}
+                ></Input>
+                <Input
+                  placeholder="Город"
+                  onChange={(event) => {
+                    setCityState(event.target.value);
+                  }}
+                ></Input>
+
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <span>Опыт работы</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={experienceState}
+                        onValueChange={setExperienceState}
+                      >
+                        <DropdownMenuRadioItem value="none">
+                          Без опыта
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="1-3">
+                          1-3
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="3-6">
+                          3-6
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="6+">
+                          6+
+                        </DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <span>Высшее образование</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuRadioGroup
+                        value={educationState}
+                        onValueChange={setEducationState}
+                      >
+                        <DropdownMenuRadioItem value="true">
+                          Да
+                        </DropdownMenuRadioItem>
+                        <DropdownMenuRadioItem value="false">
+                          Нет
+                        </DropdownMenuRadioItem>
+                      </DropdownMenuRadioGroup>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <VacancyModal />
             <select
               className="bg-transparent border px-1 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
@@ -121,6 +259,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
             </select>
           </div>
         </div>
+
         <Accordion type="single" collapsible className="space-y-4 mr-10">
           {filteredResumes.length > 0 ? (
             filteredResumes.map((resume: ResumeResponse) => (

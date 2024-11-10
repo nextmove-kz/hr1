@@ -91,8 +91,9 @@ export async function zapros(
     messages: [{ role: "user", content: textMessage }],
   });
   const response = msg.content[0] as { text: any };
-  const data = JSON.parse(response.text);
-  const final: ResumeRecord = data.map((item: any) => ({
+  let data = JSON.parse(response.text);
+  if (!Array.isArray(data)) data = [data];
+  const final: ResumeRecord[] = data.map((item: any) => ({
     fullName: item.fullName,
     jobName: item.resumeJobName,
     rating: item.resumeScore,

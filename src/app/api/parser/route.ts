@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { chromium, Browser, BrowserContext, Page } from "playwright";
+import { chromium, Browser } from "playwright";
 import * as cheerio from "cheerio";
 import { CheerioAPI } from "cheerio";
-
-interface ResumeLink {
-  originalUrl: string;
-  hash: string;
-  fullName: string;
-  convertedUrl: string;
-}
 
 interface ApiResponse {
   success: boolean;
@@ -23,12 +16,14 @@ interface ScrapeError extends Error {
 
 const BASE_URL = "https://hh.kz/employer/vacancyresponses" as const;
 const VACANCY_ID = "110466030" as const;
-const RESUMES_PER_PAGE = 50;
 
 function extractLinksFromHtml($: CheerioAPI): string[] {
   const links: string[] = [];
 
-  $("div[data-qa='resume-serp__resume']").each((_, container) => {
+  $("div[data-qa='resume-serp__resume']").each((index, container) => {
+    // Limit to first 10 results
+    if (index >= 10) return false;
+
     const $link = $(container).find('a[data-qa="serp-item__title"]');
     const $fullName = $(container).find(
       'span[data-qa="resume-serp__resume-fullname"]'
@@ -62,81 +57,33 @@ export async function GET(
     browser = await chromium.launch();
     const context = await browser.newContext();
 
-    if (request.headers.get("requestCookie")) {
-      const cookies = request.headers
-        .get("requestCookie")!
-        .split(";")
-        .map((cookie) => {
-          const [name, value] = cookie.trim().split("=");
-          return { name, value, domain: "hh.kz", path: "/" };
-        });
-      console.log(request.headers.get("cookie")!);
-      await context.addCookies(cookies);
+    const requestCookie = process.env.HH_COOKIE;
+    if (!requestCookie) {
+      throw new Error("HH_COOKIE is not set in ENV");
     }
 
-    console.log("Creating first page");
+    const cookies = requestCookie.split(";").map((cookie) => {
+      const [name, value] = cookie.trim().split("=");
+      return { name, value, domain: "hh.kz", path: "/" };
+    });
+    await context.addCookies(cookies);
 
-    const firstPage = await context.newPage();
-    await firstPage.goto(`${BASE_URL}?vacancyId=${VACANCY_ID}`);
-    await firstPage.waitForSelector('h2[data-qa="bloko-header-2"]');
+    console.log("Creating page");
+    const page = await context.newPage();
+    await page.goto(`${BASE_URL}?vacancyId=${VACANCY_ID}`);
+    await page.waitForSelector('div[data-qa="resume-serp__resume"]');
 
-    const firstPageHtml = await firstPage.content();
-    const $first = cheerio.load(firstPageHtml);
+    const pageHtml = await page.content();
+    const $ = cheerio.load(pageHtml);
 
-    console.log("Extracting links from first page");
-    // Get total pages
-    const headerText = $first('h2[data-qa="bloko-header-2"]').text();
-    const totalResumesMatch = headerText.match(/\d+/);
-    if (!totalResumesMatch) {
-      throw new Error("Could not find total resumes count");
-    }
-
-    const totalResumes = parseInt(totalResumesMatch[0], 10);
-    const totalPages = Math.ceil(totalResumes / RESUMES_PER_PAGE);
-
-    // Extract links from first page immediately
-    const firstPageLinks = extractLinksFromHtml($first);
-    console.log(`Found ${firstPageLinks.length} links on page null`);
-
-    const scrapePage = async (pageNum: number): Promise<string[]> => {
-      const page = await context.newPage();
-      try {
-        const url = `${BASE_URL}?vacancyId=${VACANCY_ID}&page=${pageNum}`;
-        console.log("Fetching:", url);
-
-        await page.goto(url);
-        await page.waitForSelector("div[data-qa='resume-serp__resume']");
-
-        const html = await page.content();
-        const $ = cheerio.load(html);
-
-        const links = extractLinksFromHtml($);
-        console.log(`Found ${links.length} links on page ${pageNum}`);
-
-        return links;
-      } finally {
-        await page.close();
-      }
-    };
-
-    // Scrape remaining pages in parallel
-    const remainingPromises = Array.from({ length: totalPages - 1 }, (_, i) =>
-      scrapePage(i + 1)
-    );
-
-    // Close first page as we're done with it
-    await firstPage.close();
-
-    // Wait for all remaining pages
-    const remainingResults = await Promise.all(remainingPromises);
-
-    // Combine all results
-    const allLinks = [...firstPageLinks, ...remainingResults.flat()];
+    console.log("Extracting links from page");
+    const links = extractLinksFromHtml($);
+    console.log(`Found ${links.length} links`);
 
     return NextResponse.json({
       success: true,
-      links: allLinks,
-      total: allLinks.length,
+      links: links,
+      total: links.length,
     });
   } catch (error) {
     console.error("Scraping error:", error);

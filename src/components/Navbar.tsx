@@ -9,6 +9,7 @@ import { FileUploader } from "./FileUploader";
 import DrawerComponent from "./Drawer";
 import AddResume from "./AddResume";
 import Image from "next/image";
+import ParseHH from "./ParseHH";
 
 export default async function Navbar() {
   const user = await getUser();
@@ -26,7 +27,7 @@ export default async function Navbar() {
         {user && auth && (
           <>
             <AddResume />
-            <Image src="/hh_logo.png" alt="hh logo" width={30} height={30} />
+            <ParseHH />
             <LogOutButton />
           </>
         )}

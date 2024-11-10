@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const { url } = await request.json();
 
     // Get the custom cookie header
-    const requestCookie = request.headers.get("requestCookie");
+    const requestCookie = process.env.HH_COOKIE;
 
     if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });

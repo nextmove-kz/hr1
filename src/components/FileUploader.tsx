@@ -169,7 +169,7 @@ export const FileUploader = () => {
 
     for (const chunk of chunks) {
       try {
-        let aiResponse: ResumeRecord[] | ResumeRecord = await mockAI(chunk);
+        let aiResponse: ResumeRecord[] | undefined = await sendToAI(chunk);
         if (!aiResponse) continue;
         aiResponse = aiResponse.splice(0, chunk.length);
 

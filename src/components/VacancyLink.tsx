@@ -11,7 +11,7 @@ const VacancyLink = ({ id, name }: { id: string; name: string }) => {
     <Link href={`/dashboard/${id}`}>
       <Button
         variant={selected ? "default" : "outline"}
-        className="w-full justify-start"
+        className="w-full justify-start truncate"
       >
         {name}
       </Button>

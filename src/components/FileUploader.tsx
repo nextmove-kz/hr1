@@ -103,27 +103,21 @@ export const FileUploader = () => {
     try {
       if (files[0].name.toLowerCase().endsWith(".zip")) {
         const results = await handleZipFile(files[0]);
-        const filtered = results.filter((file) =>
-          matchResumeToVacancy(file.text, vacancy)
-        );
-        if (filtered.length === 0) {
-          toast({
-            variant: "destructive",
-            title: "Ни одно резюме не подошло к вакансии",
-          });
-        } else {
-          setParsedFiles(filtered);
-        }
+        console.log(results);
+        // const filtered = results.filter((file) =>
+        //   matchResumeToVacancy(file.text, vacancy)
+        // );
+        // if (filtered.length === 0) {
+        //   toast({
+        //     variant: "destructive",
+        //     title: "Ни одно резюме не подошло к вакансии",
+        //   });
+        // } else {
+        setParsedFiles(results);
+        // }
       } else if (files[0].name.toLowerCase().endsWith(".pdf")) {
         const result = await handleSinglePDF(files[0]);
-        if (matchResumeToVacancy(result.text, vacancy)) {
-          setParsedFiles([result]);
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Резюме не подходит к вакансии",
-          });
-        }
+        setParsedFiles([result]);
       } else {
         throw new Error("Пожалуйста, загрузите PDF или ZIP файл");
       }
@@ -162,7 +156,10 @@ export const FileUploader = () => {
   };
 
   const sendResume = async () => {
-    if (parsedFiles.length > 2 || !vacancy) return;
+    console.log(vacancy);
+    console.log(parsedFiles.length);
+    if (!vacancy) return;
+    console.log(parsedFiles);
     const chunks = chunkArray(parsedFiles);
 
     setProcessingAI(true);
@@ -196,16 +193,16 @@ export const FileUploader = () => {
         }
       } catch (error) {
         console.error("Error sending resume:", error);
-        alert("Произошла ошибка при обработке резюме");
+        toast({ title: "Произошла ошибка при обработке резюме" });
       } finally {
-        setProcessingAI(false);
-        router.refresh();
-        toast({ title: "Файлы резюме загружены" });
-        setProceessingFinished(true);
-        setParsedFiles([]);
-        setLoading(false);
       }
     }
+    router.refresh();
+    toast({ title: "Файлы резюме загружены" });
+    setProceessingFinished(true);
+    setParsedFiles([]);
+    setProcessingAI(false);
+    setLoading(false);
   };
 
   const sendToAI = async (chunk: ParsedPDF[]) => {

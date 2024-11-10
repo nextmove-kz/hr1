@@ -58,6 +58,9 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
         filtered.sort((a, b) => b.rating - a.rating);
         setFilteredResumes(filtered);
         router.refresh();
+      } else if (statusFilter === "all") {
+        setFilteredResumes(resumes);
+        router.refresh();
       } else {
         const filtered = resumes.filter(
           (resume) => resume.status === statusFilter
@@ -114,6 +117,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
               <option value="">Без статуса</option>
               <option value="accept">Принятые</option>
               <option value="reject">Отклоненные</option>
+              <option value="all">Все</option>
             </select>
           </div>
         </div>
@@ -252,7 +256,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                       </div>
                     )}
                     <Link
-                      href={`http://pocketbase.nextmove.kz:4321/api/files/fqb2dmpp193fo7f/${resume.id}/${resume.resume}`}
+                      href={`https://pocketbase.nextmove.kz/api/files/fqb2dmpp193fo7f/${resume.id}/${resume.resume}`}
                       target="_blank"
                       className="rounded-3xl h-8 w-10 text-blue-500 hover:text-blue-700 hover:underline transition-all 0.3s"
                     >

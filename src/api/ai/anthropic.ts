@@ -26,7 +26,7 @@ export const formatJobDescription = (
 export async function zapros(
   job_description: string | VacancyRecord,
   resume: string
-): Promise<ResumeRecord | ResumeRecord[]> {
+): Promise<ResumeRecord[]> {
   if (typeof job_description !== "string") {
     job_description = await formatJobDescription(job_description);
   }

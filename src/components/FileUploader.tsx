@@ -202,6 +202,7 @@ export const FileUploader = () => {
               appendFormData(formData, resume);
               formData.append("resume", chunk[i].file);
               formData.append("vacancy", vacancy.id);
+              console.log("Form Data", JSON.stringify(formData.entries()));
 
               const response = await clientPocketBase
                 .collection("resume")

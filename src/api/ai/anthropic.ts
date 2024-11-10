@@ -9,6 +9,12 @@ export type AISummary = {
   advantages: string;
   disadvantages: string;
   summary: string;
+  contactData: string;
+  resumeSoft: string;
+  resumeHard: string;
+  city: string;
+  experience: string;
+  education: boolean;
 };
 
 export const formatJobDescription = (
@@ -100,10 +106,12 @@ export async function zapros(
     Приступайте к анализу и формированию JSON для каждого резюме.`;
   const msg = await anthropic.messages.create({
     model: "claude-3-5-sonnet-20241022",
-    max_tokens: 1024,
+    max_tokens: 2024,
     messages: [{ role: "user", content: textMessage }],
   });
+  console.log("msg", msg.content);
   const response = msg.content[0] as { text: any };
+  console.log(response.text);
   let data = JSON.parse(response.text);
   if (!Array.isArray(data)) data = [data];
   const final: ResumeRecord[] = data.map((item: any) => ({
@@ -113,6 +121,12 @@ export async function zapros(
     pros: item.advantages.join("\n"),
     cons: item.disadvantages.join("\n"),
     summary: item.summary,
+    city: item.city,
+    experience: item.experience,
+    education: item.education,
+    contactData: item.contactData,
+    resumeSoft: item.resumeSoft,
+    resumeHard: item.resumeHard,
   }));
   console.log(final);
   return final;

@@ -34,6 +34,9 @@ import { updateVacancy } from "@/api/vacancy";
 import CloseVacancy from "./closeVacancy";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
+import { useAtom } from "jotai";
+import { buttonStatusAtom, inviteAtom } from "@/lib/atoms";
+import { hireResume } from "@/api/resume";
 
 interface Vacancy {
   title: string;
@@ -51,6 +54,9 @@ export default function VacancyModal() {
   const [vacancy, setVacancy] = useState<VacancyResponse>();
   const [openEdit, setOpenEdit] = useState(false);
   const [resumes, setResumes] = useState<ResumeResponse[]>();
+  const [activeResume, setActiveResume] = useState<ResumeResponse>();
+  const [buttonStatus, setButtonStatus] = useAtom(buttonStatusAtom);
+  const [reloadResumes, setReloadResumes] = useAtom(inviteAtom);
 
   const [employmentType, setemploymentType] = useState("");
   const [title, setTitle] = useState("");
@@ -73,6 +79,21 @@ export default function VacancyModal() {
     setCity("");
     setExperience("");
     window.location.reload();
+  };
+
+  const getRatingColor = (rating: number) => {
+    if (rating >= 90) return "text-green-500";
+    if (rating >= 70) return "text-yellow-500";
+    if (rating >= 60) return "text-orange-500";
+    return "text-red-500";
+  };
+
+  const getDashArray = (rating: number) => {
+    if (rating >= 90) return 390;
+    if (rating >= 80) return 320;
+    if (rating >= 70) return 270;
+    if (rating >= 60) return 210;
+    return 150;
   };
 
   const data: VacancyRecord = {
@@ -235,12 +256,6 @@ export default function VacancyModal() {
                   ></p>
                 )}
               </div>
-            </ScrollArea>
-            <Separator />
-            <ScrollArea className="h-52">
-              {resumes?.map((resume) => (
-                <p>{resume.fullName}</p>
-              ))}
             </ScrollArea>
             <div>
               <CloseVacancy item={vacancy as VacancyResponse} />

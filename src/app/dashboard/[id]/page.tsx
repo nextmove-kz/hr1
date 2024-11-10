@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { accept, getResume, reject } from "@/api/resume";
+import { accept, getResume, reject, setMark } from "@/api/resume";
 import { useEffect, useState } from "react";
 import { Badge } from "../../../components/ui/badge";
 
@@ -24,6 +24,9 @@ import { useRouter } from "next/navigation";
 import InviteButton from "@/components/InviteButton";
 import { useAtom } from "jotai";
 import { inviteAtom } from "@/lib/atoms";
+import { Input } from "@/components/ui/input";
+import { useDebouncedCallback } from "use-debounce";
+import MarkInput from "@/components/MarkInput";
 
 export default function DashboardPage({ params }: { params: { id: string } }) {
   const id = params.id;
@@ -204,7 +207,8 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                 <AccordionTrigger className="hover:no-underline">
                   <div className="flex justify-between items-center w-full">
                     <span className="text-lg font-medium gap-2 flex">
-                      {resume?.fullName}
+                      {resume?.fullName}{" "}
+                      {resume.setMark ? `| Оценка HR: ${resume?.setMark}` : ""}
                     </span>
                     <div className="flex items-center gap-2 mr-5">
                       <div className="relative w-10 h-10 ">
@@ -247,26 +251,34 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-2 pt-2">
-                    <div className="flex gap-6">
-                      <div>
-                        {resume.pros
-                          .split("\n")
-                          .map((pro: string, index: number) => (
-                            <div key={index} className="text-sm text-green-600">
-                              <p>+ {pro}</p>
-                            </div>
-                          ))}
+                    {resume.accepted === "invite" && (
+                      <MarkInput resume={resume} />
+                    )}
+                    {resume.accepted != "invite" && (
+                      <div className="flex gap-6">
+                        <div>
+                          {resume.pros
+                            .split("\n")
+                            .map((pro: string, index: number) => (
+                              <div
+                                key={index}
+                                className="text-sm text-green-600"
+                              >
+                                <p>+ {pro}</p>
+                              </div>
+                            ))}
+                        </div>
+                        <div>
+                          {resume.cons
+                            .split("\n")
+                            .map((con: string, index: number) => (
+                              <div key={index} className="text-sm text-red-600">
+                                <p>- {con}</p>
+                              </div>
+                            ))}
+                        </div>
                       </div>
-                      <div>
-                        {resume.cons
-                          .split("\n")
-                          .map((con: string, index: number) => (
-                            <div key={index} className="text-sm text-red-600">
-                              <p>- {con}</p>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
+                    )}
                     <Separator />
                     {resume.summary && (
                       <div className="text-sm text-muted-foreground">

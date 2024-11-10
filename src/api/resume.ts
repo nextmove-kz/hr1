@@ -32,3 +32,9 @@ export const hireResume = async (id: string) => {
     const resume = await pb.collection("resume").update( id, {accepted: "hire"});
     return resume;
 };
+
+export const setMark = async (id: string, mark: number) => {
+    const pb = clientPocketBase;
+    const resume = await pb.collection("resume").update( id, {setMark: mark});
+    return resume;
+};

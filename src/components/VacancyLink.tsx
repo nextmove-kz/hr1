@@ -8,7 +8,7 @@ const VacancyLink = ({ id, name }: { id: string; name: string }) => {
   const selected = path.includes(id);
 
   return (
-    <Link href={`/dashboard/${id}`} className="w-[270px]">
+    <Link href={`/dashboard/${id}`} className="w-[265px]">
       <Button
         variant={selected ? "default" : "outline"}
         className="w-full justify-start truncate"

@@ -149,13 +149,16 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
       <div className="flex-1 p-6">
         <div className="grid md:grid-cols-2 gap-y-2 grid-cols-1 text-xl font-semibold mb-4 justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="flex flex-col  gap-2">
-              <h1>{vacancy && vacancy.title}</h1>
-              <p className="text-sm">
-                {sliderValue && (
-                  <>Минимальный процент соответствия: {sliderValue}</>
-                )}
-              </p>
+            <div className="">
+              <div className="flex flex-col  gap-2">
+                <h1>{vacancy && vacancy.title}</h1>
+                <p className="text-sm">
+                  {sliderValue && (
+                    <>Минимальный процент соответствия: {sliderValue}</>
+                  )}
+                </p>
+              </div>
+
               {/* <Slider
                 defaultValue={sliderValue}
                 onValueChange={(value) => {
@@ -164,16 +167,17 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                 max={100}
                 step={1}
               /> */}
+              {vacancy.archive && (
+                <>
+                  <Badge variant="destructive">В архиве</Badge>
+                </>
+              )}
             </div>
-
-            {vacancy.archive && (
-              <>
-                <Badge variant="destructive">В архиве</Badge>
-              </>
-            )}
           </div>
 
           <div className="flex gap-2 justify-start md:justify-end">
+            <VacancyModal />
+
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <Button>Фильтры</Button>
@@ -246,7 +250,6 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <VacancyModal />
             <select
               className="bg-transparent border px-1 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
               value={statusFilter}
@@ -328,6 +331,16 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                       {resume?.fullName}
                     </span>
                     <div className="flex items-center gap-2 mr-5">
+                      <div className="flex flex-col">
+                        <div className="flex gap-1 justify-end">
+                          <p>Hard:</p>
+                          {resume.resumeHard}
+                        </div>
+                        <div className="flex gap-1 justify-end">
+                          <p>Soft:</p>
+                          {resume.resumeSoft}
+                        </div>
+                      </div>
                       <div className="relative w-10 h-10 ">
                         <svg className="w-full h-full " viewBox="0 0 100 100">
                           <circle
@@ -367,6 +380,21 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
+                  <div className="flex gap-2">
+                    {resume.city && (
+                      <Badge variant="outline">{resume.city}</Badge>
+                    )}
+                    {resume.experience && (
+                      <Badge variant="outline">{resume.experience}</Badge>
+                    )}
+                    {resume.education == true ? (
+                      <Badge>Есть высшее образование</Badge>
+                    ) : (
+                      <Badge variant="destructive">
+                        Нет высшего образования
+                      </Badge>
+                    )}
+                  </div>
                   <div className="space-y-2 pt-2">
                     <div className="flex gap-6">
                       <div>

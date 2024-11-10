@@ -31,6 +31,7 @@ import clientPocketBase from "@/api/client_pb";
 import { Textarea } from "./ui/textarea";
 import { updateVacancy } from "@/api/vacancy";
 import CloseVacancy from "./closeVacancy";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface Vacancy {
   title: string;
@@ -210,11 +211,16 @@ export default function VacancyModal() {
                 </>
               )}
             </div>
-            <div className="space-y-6">
-              <div>
-                <p className="text-sm text-gray-600">{vacancy?.description}</p>
+            <ScrollArea className="h-80">
+              <div className="space-y-6">
+                {vacancy?.description && (
+                  <p
+                    className="text-sm text-gray-600"
+                    dangerouslySetInnerHTML={{ __html: vacancy?.description }}
+                  ></p>
+                )}
               </div>
-            </div>
+            </ScrollArea>
             <div>
               <CloseVacancy item={vacancy as VacancyResponse} />
             </div>

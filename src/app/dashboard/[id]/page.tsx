@@ -75,11 +75,7 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
     return "text-red-500";
   };
   const getDashArray = (rating: number) => {
-    if (rating >= 90) return 390;
-    if (rating >= 80) return 320;
-    if (rating >= 70) return 270;
-    if (rating >= 60) return 210;
-    return 150;
+    return rating * 4;
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -188,7 +184,9 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                             r="40"
                             fill="transparent"
                             stroke-dasharray={getDashArray(resume.rating)}
-                            stroke-dashoffset="calc(251.2px - (251.2px * 70) / 100)"
+                            stroke-dashoffset={
+                              getDashArray(resume.rating) / 100
+                            }
                           ></circle>
                           <text
                             x="50"

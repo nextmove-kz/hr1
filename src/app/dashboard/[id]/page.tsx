@@ -149,13 +149,16 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
       <div className="flex-1 p-6">
         <div className="grid md:grid-cols-2 gap-y-2 grid-cols-1 text-xl font-semibold mb-4 justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="flex flex-col  gap-2">
-              <h1>{vacancy && vacancy.title}</h1>
-              <p className="text-sm">
-                {sliderValue && (
-                  <>Минимальный процент соответствия: {sliderValue}</>
-                )}
-              </p>
+            <div className="">
+              <div className="flex flex-col  gap-2">
+                <h1>{vacancy && vacancy.title}</h1>
+                <p className="text-sm">
+                  {sliderValue && (
+                    <>Минимальный процент соответствия: {sliderValue}</>
+                  )}
+                </p>
+              </div>
+
               {/* <Slider
                 defaultValue={sliderValue}
                 onValueChange={(value) => {
@@ -164,13 +167,12 @@ export default function DashboardPage({ params }: { params: { id: string } }) {
                 max={100}
                 step={1}
               /> */}
+              {vacancy.archive && (
+                <>
+                  <Badge variant="destructive">В архиве</Badge>
+                </>
+              )}
             </div>
-
-            {vacancy.archive && (
-              <>
-                <Badge variant="destructive">В архиве</Badge>
-              </>
-            )}
           </div>
 
           <div className="flex gap-2 justify-start md:justify-end">
